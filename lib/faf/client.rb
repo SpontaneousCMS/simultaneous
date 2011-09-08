@@ -1,5 +1,4 @@
-require 'eventmachine'
-
+# encoding: UTF-8
 
 module FAF
   class Client
@@ -28,13 +27,10 @@ module FAF
         def client=(client); @client = client end
         def client; @client end
 
-
         def receive_line(line)
           client.receive(line)
         end
       end
-
-      # handler.client = self
       handler
     end
 
@@ -69,26 +65,4 @@ module FAF
       subscribers[event.to_sym] << block
     end
   end
-
-  # input = Thread.new do
-  #   loop do
-  #     print "Enter message: "
-  #     message = $stdin.gets.chomp
-  #     @client.send(message)
-  #   end
-  # end
-
-  # EventMachine.run do
-  #   @client = BroadcastClient.new(channel)
-  #   # test for binding inside blocks
-  #   something = "_____"
-
-  #   @client.subscribe :a do |data|
-  #     puts "AAAAAAAA #{something} #{data.inspect}"
-  #   end
-
-  #   @client.subscribe :b do |data|
-  #     puts "BBBBBBBB #{something} #{data.inspect}"
-  #   end
-  # end
 end

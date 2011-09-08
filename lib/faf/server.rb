@@ -1,10 +1,4 @@
-# require 'bundler/setup'
-require 'eventmachine'
-# require 'formatador'
-# require File.expand_path('../message', __FILE__)
-
-
-
+# encoding: UTF-8
 
 module FAF
   class Server < EM::Connection
@@ -45,20 +39,4 @@ module FAF
       channel.unsubscribe @sid if @sid
     end
   end
-
-  # server = BroadCastServer.new
-
-  # input = Thread.new do
-  #   loop do
-  #     prompt!
-  #     data = $stdin.gets.chomp#.split("/").map { |p| p.strip }
-  #     p data
-  #     BroadCastServer.broadcast(data)
-  #   end
-  # end
-
-  # EventMachine.run do
-  #   BroadCastServer.start
-  # end
-
 end

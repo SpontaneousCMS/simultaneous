@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 module FAF
   class BroadcastMessage
     attr_accessor :channel

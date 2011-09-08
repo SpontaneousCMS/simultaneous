@@ -1,10 +1,5 @@
 require File.expand_path('../helper', __FILE__)
 
-module AClient
-  def connection_completed
-    puts "CONNECTED"
-  end
-end
 describe FireAndForget::Server do
   before do
   end
