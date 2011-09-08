@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+require 'rubygems' unless defined?(Gem)
+require 'bundler/setup'
+
+faf_path = File.expand_path('../../lib', __FILE__)
+$:.unshift(faf_path) if File.directory?(faf_path) && !$:.include?(faf_path)
+
+require 'eventmachine'
+require 'fire_and_forget'
+
+EventMachine.run do
+  FAF::Server.start_tcp
+end
