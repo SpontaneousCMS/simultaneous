@@ -14,7 +14,6 @@ class BroadcastClient# < EM::Connection
   def initialize(channel)
     @channel = channel
     @connection ||= EM.connect('127.0.0.1', 1234, connection_module)
-    # @connection.send_data("channel: #{channel}\\n")
   end
 
   def connection_module
@@ -46,29 +45,17 @@ class BroadcastClient# < EM::Connection
   end
 
 
-  def receive(message)
-    p message
-    if message == ""
+  def receive(data)
+    if data == ""
       notify! if @message
     else
       @message ||= Message.new
-      case message
-      when /^channel: *(.+)/
-        @message.channel = $1
-      when /^event: *(.+)/
-        @message.event = $1
-      when /^data: *(.*)/
-        @message << $1
-      when /^:/
-        # comment
-      else
-        # malformed request
-      end
+      @message << data
     end
   end
 
   def notify!
-    if @message.channel == @channel
+    if @message.valid? and @message.channel == @channel
       subscribers[@message.event].each do |subscriber|
         subscriber.call(@message.data)
       end
@@ -97,11 +84,11 @@ end
 EventMachine.run do
   @client = BroadcastClient.new(channel)
   something = "_____"
-  @client.subscribe(:a) do |data|
+  @client.subscribe :a do |data|
     puts "AAAAAAAA #{something} #{data.inspect}"
   end
 
-  @client.subscribe(:b) do |data|
+  @client.subscribe :b do |data|
     puts "BBBBBBBB #{something} #{data.inspect}"
   end
 end
