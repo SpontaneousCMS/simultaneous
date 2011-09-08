@@ -1,15 +1,15 @@
 require 'bundler/setup'
 require 'eventmachine'
+require 'formatador'
 
-p ARGV
-$channel = ARGV[0]
-puts "Channel: #{$channel}"
+channel = ARGV[0]
+Formatador.display_line "[light_black]Channel: [light_magenta][bold]#{channel}[/]"
 
 
 module BroadcastClient
-  def self.start
+  def self.start(channel)
     @connection ||= EM.connect('127.0.0.1', 1234, self)
-    @connection.send_data("channel: #{$channel}\n")
+    @connection.send_data("channel: #{channel}\n")
   end
 
   def self.connection
@@ -17,12 +17,11 @@ module BroadcastClient
   end
 
   def self.send(message)
-    p message
     connection.send_data("#{message}\n")
   end
 
   def self.receive(message)
-    print "\n<<: #{message.inspect}\nEnter message: "
+    Formatador.display "\n[light_black]Received: [green][bold]#{message.inspect}\n[light_black]Enter message: [/]"
   end
 
   include EventMachine::Protocols::LineText2
@@ -35,6 +34,7 @@ module BroadcastClient
     EventMachine::stop_event_loop
   end
 end
+
 input = Thread.new do
   loop do
     print "Enter message: "
@@ -44,5 +44,5 @@ input = Thread.new do
 end
 
 EventMachine.run do
-  BroadcastClient.start
+  BroadcastClient.start(channel)
 end

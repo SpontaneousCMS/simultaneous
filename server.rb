@@ -1,5 +1,10 @@
 require 'bundler/setup'
 require 'eventmachine'
+require 'formatador'
+
+def prompt!
+  Formatador.display "\n[light_black]Channel / Message : [/]"
+end
 
 class BroadCastServer < EM::Connection
   # RandChannel = EM::Channel.new
@@ -16,23 +21,27 @@ class BroadCastServer < EM::Connection
   end
 
   def post_init
+    # subscription is only done when we recieve the channel name
     # @sid = RandChannel.subscribe { |m| send_data "#{m}\\n" }
   end
 
   def receive_data data
-    p data
     case data
     when /^channel: (\w+)/
-      puts "binding to channel #{$1}"
-      @channel = BroadCastServer.channels[$1]
+      @channel_name = $1
+      Formatador.display "\n[light_black]Client bound to channel [light_magenta][bold]#{@channel_name}[/]"
+      @channel = BroadCastServer.channels[@channel_name]
       @sid = @channel.subscribe { |m| send_data("#{m}\n") }
+      prompt!
     else
-      print "\n:data: #{data.inspect}\nEnter message: "
+      Formatador.display "\n[light_black]Recieved: [green][bold]#{data.inspect}[/]"
+      prompt!
     end
   end
 
+
   def unbind
-    puts "unbind #{@sid.inspect}"
+    puts "#{@channel_name}.unbind #{@sid.inspect}"
     @channel.unsubscribe @sid
   end
 
@@ -42,7 +51,8 @@ end
 
 input = Thread.new do
   loop do
-    print "channel / message : "
+    # print "channel / message : "
+    prompt!
     channel, message = gets.chomp.split("/").map { |p| p.strip }
     BroadCastServer.broadcast(channel, message)
   end
