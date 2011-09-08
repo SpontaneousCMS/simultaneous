@@ -1,0 +1,40 @@
+require File.expand_path('../helper', __FILE__)
+
+describe FireAndForget do
+  it "should translate a hash to command line arguments" do
+    FAF.to_arguments({
+      :param1 => "value1",
+      :param2 => "value2",
+      :array => [1, 2, "3 of 4"],
+      :hash  => {:name => "Fred", :age => 23}
+    }).must_equal %(--array=1 2 "3 of 4" --hash=name:"Fred" age:23 --param1="value1" --param2="value2")
+  end
+  it "should enable mapping of task to a binary" do
+    FAF.add_task(:publish, "/path/to/binary")
+    FAF.binary(:publish).must_equal  "/path/to/binary"
+    FAF[:publish].binary.must_equal  "/path/to/binary"
+  end
+
+  it "should enable setting of a niceness value for the task" do
+    FAF.add_task(:publish, "/path/to/binary", 10)
+    FAF[:publish].niceness.must_equal  10
+  end
+
+
+  it "should enable launching a task by its name" do
+    FAF.add_task(:publish, "/path/to/binary")
+    args = {:param1 => "param1", :param2 => "param2"}
+    mock(FAF).fire(:publish, args)
+    FAF.publish(args)
+  end
+
+  it "should enable setting of path to socket" do
+    FAF.socket = "/tmp/something"
+    FAF.socket.must_equal  "/tmp/something"
+  end
+
+  it "should enable setting of channel" do
+    FAF.channel = "channel_name"
+    FAF.channel.must_equal  "channel_name"
+  end
+end

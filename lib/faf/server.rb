@@ -7,7 +7,7 @@ module FAF
       @channel ||= EM::Channel.new
     end
 
-    def self.start_unix(socket = FAF::DEFAULT_SOCKET)
+    def self.start_unix(socket = FAF.socket)
       self.start(socket)
     end
 
@@ -23,6 +23,31 @@ module FAF
       channel << data
     end
 
+    def self.run(cmd)
+      if Command.allowed?(cmd)
+        cmd.run
+      else
+        raise PermissionsError, "'#{cmd.class}' is not an approved command"
+      end
+    end
+
+    def self.status
+      @status ||= {}
+    end
+
+    def self.set_pid(task_name, pid)
+      pids[task_name] = pid.to_i
+    end
+
+    def self.get_pid(task)
+      pids[task.name]
+    end
+
+    def self.pids
+      @pids ||= {}
+    end
+
+
     def channel
       FAF::Server.channel
     end
@@ -32,7 +57,7 @@ module FAF
     end
 
     def receive_data(data)
-      # Formatador.display "\\n[light_black]Recieved: [green][bold]#{data.inspect}[/]"
+      FAF::Server.receive_data(data)
     end
 
     def unbind

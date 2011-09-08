@@ -34,6 +34,10 @@ module FAF
       handler
     end
 
+    def run(command)
+      send(command.dump)
+    end
+
     def send(message)
       connection.send_data("#{message}\n")
     end

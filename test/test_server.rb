@@ -3,6 +3,9 @@ require File.expand_path('../helper', __FILE__)
 describe FireAndForget::Server do
   before do
   end
+  after do
+    FileUtils.rm(SOCKET) if File.exist?(SOCKET)
+  end
 
   describe "broadcasting messages" do
     it "should generate events in clients on the right channel" do
@@ -11,11 +14,11 @@ describe FireAndForget::Server do
       result4 = result5 = result6 = nil
 
       EM.run {
-        FAF::Server.start_tcp()
+        FAF::Server.start(SOCKET)
 
-        client1 = FAF::Client.tcp_client("channel1")
-        client2 = FAF::Client.tcp_client("channel1")
-        client3 = FAF::Client.tcp_client("channel2")
+        client1 = FAF::Client.new("channel1", SOCKET)
+        client2 = FAF::Client.new("channel1", SOCKET)
+        client3 = FAF::Client.new("channel2", SOCKET)
 
         message = FAF::BroadcastMessage.new({
           :channel => "channel1",
