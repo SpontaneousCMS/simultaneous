@@ -7,33 +7,36 @@ channel = ARGV[0]
 Formatador.display_line "[light_black]Channel: [light_magenta][bold]#{channel}[/]"
 
 
-class BroadcastClient# < EM::Connection
+class BroadcastClient
 
 
 
   def initialize(channel)
     @channel = channel
-    @connection ||= EM.connect('127.0.0.1', 1234, connection_module)
+    @connection ||= EM.connect('127.0.0.1', 1234, handler)
   end
 
-  def connection_module
-    mod = Module.new do
+  def handler
+    handler = Class.new(EventMachine::Connection) do
       include EventMachine::Protocols::LineText2
 
-      def self.client=(client)
-        @@client = client
+      def self.client=(client); @client = client end
+      def self.client; @client end
+
+      def _client
+        self.class.client
       end
 
       def receive_line(line)
-        @@client.receive(line)
+        _client.receive(line)
       end
 
       def unbind
         EventMachine::stop_event_loop
       end
     end
-    mod.client = self
-    mod
+    handler.client = self
+    handler
   end
 
   def connection
