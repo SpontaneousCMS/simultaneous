@@ -44,7 +44,6 @@ module FAF
 
 
     def receive(data)
-      p data
       if data == ""
         notify! if @message
       else

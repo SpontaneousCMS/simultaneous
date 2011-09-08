@@ -15,13 +15,6 @@ describe FireAndForget::Server do
       result1 = result2 = result3 = nil
       result4 = result5 = result6 = nil
 
-      # EM.run {
-      #   EM.start_server("127.0.0.1", 9999)
-      #   EM.connect("127.0.0.1", 9999, AClient)
-      #   EM.connect("127.0.0.1", 9999, AClient)
-      #   EM.connect("127.0.0.1", 9999, AClient)
-      #   # EM.stop
-      # }
       EM.run {
         FAF::Server.start_tcp()
 
@@ -35,9 +28,6 @@ describe FireAndForget::Server do
           :data => "data"
         })
 
-        trace = proc {
-
-        }
         client1.subscribe(:a) { |data| result1 = [:a, data] }
         client2.subscribe(:a) { |data| result2 = [:a, data] }
         client3.subscribe(:a) { |data| result3 = [:a, data] }
@@ -45,41 +35,46 @@ describe FireAndForget::Server do
         client2.subscribe(:b) { |data| result5 = [:b, data] }
         client3.subscribe(:b) { |data| result6 = [:b, data] }
 
-        Thread.new {
-          result1 = result2 = result3 = nil
-          FAF::Server.broadcast(message.to_src)
-        }.join
+        $receive_count = 0
 
-        EM.next_tick { EM.next_tick { EM.next_tick {
-          EM.next_tick { EM.next_tick { EM.next_tick {
-          puts "#"*50
+        $test = proc {
           result1.must_equal [:a, "data"]
           result2.must_equal [:a, "data"]
           result3.must_be_nil
           result4.must_be_nil
           result5.must_be_nil
+          result6.must_be_nil
           EM.stop
-        }}}}}}
+        }
 
-        result1 = result2 = result3 = nil
-        message = FAF::BroadcastMessage.new({
-          :channel => "channel2",
-          :event => "b",
-          :data => "data"
-        })
+        def client1.notify!
+          super
+          $receive_count += 1
+          if $receive_count == 3
+            $test.call
+          end
+        end
+
+        def client2.notify!
+          super
+          $receive_count += 1
+          if $receive_count == 3
+            $test.call
+          end
+        end
+
+        def client3.notify!
+          super
+          $receive_count += 1
+          if $receive_count == 3
+            $test.call
+          end
+        end
 
         Thread.new {
           FAF::Server.broadcast(message.to_src)
-          result1 = result2 = result3 = nil
         }.join
-        EM.next_tick { EM.next_tick { EM.next_tick {
-          EM.next_tick { EM.next_tick { EM.next_tick {
-          puts "#"*50
-          result4.must_be_nil
-          result5.must_be_nil
-          result6.must_equal [:b, "data"]
-          EM.stop
-        }}}}}}
+
       }
     end
   end

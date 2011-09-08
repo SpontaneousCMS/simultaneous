@@ -26,9 +26,6 @@ module FAF
     end
 
     def self.broadcast(data)
-      puts "broadcast"
-      p data
-      p channel
       channel << data
     end
 
@@ -38,12 +35,9 @@ module FAF
 
     def post_init
       @sid = channel.subscribe { |m| send_data "#{m}\n" }
-      puts "post_init"
-      p channel
     end
 
     def receive_data(data)
-      p data
       # Formatador.display "\\n[light_black]Recieved: [green][bold]#{data.inspect}[/]"
     end
 
