@@ -10,9 +10,9 @@ describe FAF::BroadcastMessage do
       @message.valid?.wont_be :==, true
     end
 
-    it "should recognise the channel: header" do
-      @message << "channel: name"
-      @message.channel.must_equal "name"
+    it "should recognise the domain: header" do
+      @message << "domain: name"
+      @message.domain.must_equal "name"
       @message.valid?.wont_be :==, true
     end
 
@@ -47,7 +47,7 @@ describe FAF::BroadcastMessage do
     before do
       @message = FAF::BroadcastMessage.new
       @message.event = "event"
-      @message.channel = "channel"
+      @message.domain = "domain"
       @message.data = "line 1\nline 2"
     end
 
@@ -57,7 +57,7 @@ describe FAF::BroadcastMessage do
 
     it "should serialise to a SSE-friendly format" do
       @message.to_src.must_equal((<<-SRC).gsub(/^ */, ''))
-        channel: channel
+        domain: domain
         event: event
         data: line 1
         data: line 2
@@ -69,11 +69,11 @@ describe FAF::BroadcastMessage do
   describe "when initialising" do
     it "should accept values at initialisation" do
       message = FAF::BroadcastMessage.new({
-        :channel => "channel",
+        :domain => "domain",
         :event => "event",
         :data => "line 1\nline 2"
       })
-      message.channel.must_equal "channel"
+      message.domain.must_equal "domain"
       message.event.must_equal :event
       message.data.must_equal "line 1\nline 2"
     end

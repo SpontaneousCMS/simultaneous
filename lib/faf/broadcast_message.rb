@@ -2,11 +2,11 @@
 
 module FAF
   class BroadcastMessage
-    attr_accessor :channel
+    attr_accessor :domain
     attr_reader :event
 
     def initialize(values = {})
-      @channel = (values[:channel] || values["channel"])
+      @domain = (values[:domain] || values["domain"])
       @event = nil
       if (event = (values[:event] || values["event"])) and !event.empty?
         self.event = event
@@ -29,8 +29,8 @@ module FAF
     def <<(line)
       data = line.chomp
       case data
-      when /^channel: *(.+)/
-        self.channel = $1
+      when /^domain: *(.+)/
+        self.domain = $1
       when /^event: *(.+)/
         self.event = $1
       when /^data: *(.*)/
@@ -43,11 +43,11 @@ module FAF
     end
 
     def valid?
-      @channel && @event && !@data.empty?
+      @domain && @event && !@data.empty?
     end
 
     def to_src
-      lines = ["channel: #{channel}", "event: #{event}"]
+      lines = ["domain: #{domain}", "event: #{event}"]
       lines.concat(@data.map { |l| "data: #{l}" })
       lines.push("\n")
       lines.join("\n")

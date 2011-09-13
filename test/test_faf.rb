@@ -33,8 +33,8 @@ describe FireAndForget do
     FAF.socket.must_equal  "/tmp/something"
   end
 
-  it "should enable setting of channel" do
-    FAF.channel = "channel_name"
-    FAF.channel.must_equal  "channel_name"
+  it "should enable setting of domain" do
+    FAF.domain = "domain_name"
+    FAF.domain.must_equal  "domain_name"
   end
 end

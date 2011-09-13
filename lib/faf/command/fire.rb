@@ -46,7 +46,7 @@ module FireAndForget
         @task.env.merge({
           FireAndForget::ENV_SOCKET => FireAndForget.socket,
           FireAndForget::ENV_TASK_NAME => @task.name.to_s,
-          FireAndForget::ENV_CHANNEL => FireAndForget.channel
+          FireAndForget::ENV_DOMAIN => FireAndForget.domain
         })
       end
 

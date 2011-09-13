@@ -8,7 +8,7 @@ describe FireAndForget::Server do
   end
 
   describe "broadcasting messages" do
-    it "should generate events in clients on the right channel" do
+    it "should generate events in clients on the right domain" do
       client1 = client2 = client3 = nil
       result1 = result2 = result3 = nil
       result4 = result5 = result6 = nil
@@ -16,12 +16,12 @@ describe FireAndForget::Server do
       EM.run {
         FAF::Server.start(SOCKET)
 
-        client1 = FAF::Client.new("channel1", SOCKET)
-        client2 = FAF::Client.new("channel1", SOCKET)
-        client3 = FAF::Client.new("channel2", SOCKET)
+        client1 = FAF::Client.new("domain1", SOCKET)
+        client2 = FAF::Client.new("domain1", SOCKET)
+        client3 = FAF::Client.new("domain2", SOCKET)
 
         message = FAF::BroadcastMessage.new({
-          :channel => "channel1",
+          :domain => "domain1",
           :event => "a",
           :data => "data"
         })

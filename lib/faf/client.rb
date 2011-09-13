@@ -3,18 +3,18 @@
 module FAF
   class Client
 
-    def self.socket_client(channel, socket = FAF::DEFAULT_SOCKET)
-      self.new(channel, socket)
+    def self.socket_client(domain, socket = FAF::DEFAULT_SOCKET)
+      self.new(domain, socket)
     end
 
-    def self.tcp_client(channel, host = DEFAULT_HOST, port = FAF::DEFAULT_PORT)
-      self.new(channel, host, port)
+    def self.tcp_client(domain, host = DEFAULT_HOST, port = FAF::DEFAULT_PORT)
+      self.new(domain, host, port)
     end
 
     attr_reader :connection
 
-    def initialize(channel, *args)#(channel, socket_file)
-      @channel = channel
+    def initialize(domain, *args)#(domain, socket_file)
+      @domain = domain
       @connection = EventMachine.connect(*args, handler) do |connection|
         connection.client = self
       end
@@ -53,7 +53,7 @@ module FAF
     end
 
     def notify!
-      if @message.valid? and @message.channel == @channel
+      if @message.valid? and @message.domain == @domain
         subscribers[@message.event].each do |subscriber|
           subscriber.call(@message.data)
         end

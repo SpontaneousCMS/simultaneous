@@ -8,7 +8,7 @@ module FireAndForget
   DEFAULT_PORT = 9999
 
   ENV_SOCKET = "__FAF_SOCKET"
-  ENV_CHANNEL = "__FAF_CHANNEL"
+  ENV_DOMAIN = "__FAF_DOMAIN"
   ENV_TASK_NAME = "__FAF_TASK_NAME"
 
   class Error < ::StandardError; end
@@ -55,7 +55,7 @@ module FireAndForget
     end
 
     def client
-      @client ||= Client.new(channel, socket)
+      @client ||= Client.new(domain, socket)
     end
 
     # Returns the path to the binary for the given task
@@ -78,14 +78,14 @@ module FireAndForget
     end
 
     attr_writer :socket
-    attr_writer :channel
+    attr_writer :domain
 
     def socket
       @socket ||= (ENV[FireAndForget::ENV_SOCKET] || FireAndForget::DEFAULT_SOCKET)
     end
 
-    def channel
-      @channel ||= (ENV[FireAndForget::ENV_CHANNEL] || "channel#{$$}")
+    def domain
+      @domain ||= (ENV[FireAndForget::ENV_DOMAIN] || "domain#{$$}")
     end
 
     def to_arguments(params={})
