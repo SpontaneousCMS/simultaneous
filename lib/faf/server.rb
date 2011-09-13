@@ -23,11 +23,17 @@ module FAF
       channel << data
     end
 
-    def self.run(cmd)
-      if Command.allowed?(cmd)
-        cmd.run
+    def self.receive_data(data)
+      command = FAF::Command.load(data)
+      run(command)
+    end
+
+    def self.run(command)
+      if Command.allowed?(command)
+        puts command.debug if $debug
+        command.run
       else
-        raise PermissionsError, "'#{cmd.class}' is not an approved command"
+        raise PermissionsError, "'#{command.class}' is not an approved command"
       end
     end
 

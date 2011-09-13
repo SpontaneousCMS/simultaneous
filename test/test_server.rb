@@ -3,11 +3,12 @@ require File.expand_path('../helper', __FILE__)
 describe FireAndForget::Server do
   before do
   end
+
   after do
     FileUtils.rm(SOCKET) if File.exist?(SOCKET)
   end
 
-  describe "broadcasting messages" do
+  describe "task messages" do
     it "should generate events in clients on the right domain" do
       client1 = client2 = client3 = nil
       result1 = result2 = result3 = nil
@@ -20,11 +21,7 @@ describe FireAndForget::Server do
         client2 = FAF::Client.new("domain1", SOCKET)
         client3 = FAF::Client.new("domain2", SOCKET)
 
-        message = FAF::BroadcastMessage.new({
-          :domain => "domain1",
-          :event => "a",
-          :data => "data"
-        })
+        command = FAF::Command::ClientEvent.new("domain1", "a", "data")
 
         client1.subscribe(:a) { |data| result1 = [:a, data] }
         client2.subscribe(:a) { |data| result2 = [:a, data] }
@@ -70,10 +67,54 @@ describe FireAndForget::Server do
         end
 
         Thread.new {
-          FAF::Server.broadcast(message.to_src)
+          FAF::Server.run(command)
         }.join
-
       }
+    end
+  end
+  describe "Task" do
+    it "should make it intact from client to process" do
+      default_params = { :param1 => "param1" }
+      env = { "ENV_PARAM" => "envparam" }
+      args = {:param2 => "param2"}
+      niceness = 10
+      task_uid = 9999
+      task = FAF.add_task(:publish, "/path/to/binary", niceness, default_params, env)
+      command = FAF::Command::Fire.new(task, args)
+      dump = command.dump
+      mock(command).dump { dump }
+      mock(FAF::Command::Fire).new(task, args) { command }
+      mock(FAF::Command).load(is_a(String)) { command }
+      mock(command).valid? { true }
+      mock(command).task_uid.twice { task_uid }
+      FAF.domain = "example.org"
+      FAF.socket = SOCKET
+
+      EM.run do
+        FAF::Server.start(SOCKET)
+
+        mock(Process).detach(9999)
+
+        mock(command).fork do |block|
+          mock(command).daemonize
+          mock(Process).setpriority(Process::PRIO_PROCESS, 0, niceness)
+          mock(Process::UID).change_privilege(task_uid)
+          mock(File).umask(0022)
+          mock(command).exec(%[/path/to/binary --param1="param1" --param2="param2"])
+          block.call
+
+          ENV["ENV_PARAM"].must_equal "envparam"
+          ENV[FAF::ENV_DOMAIN].must_equal "example.org"
+          ENV[FAF::ENV_TASK_NAME].must_equal "publish"
+          ENV[FAF::ENV_SOCKET].must_equal SOCKET
+          EM.stop
+          9999
+        end
+
+        Thread.new do
+          FAF.fire(:publish, args)
+        end.join
+      end
     end
   end
 end

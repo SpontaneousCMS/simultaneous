@@ -56,7 +56,7 @@ describe FAF::BroadcastMessage do
     end
 
     it "should serialise to a SSE-friendly format" do
-      @message.to_src.must_equal((<<-SRC).gsub(/^ */, ''))
+      @message.to_event.must_equal((<<-SRC).gsub(/^ */, ''))
         domain: domain
         event: event
         data: line 1

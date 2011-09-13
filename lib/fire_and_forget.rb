@@ -58,6 +58,10 @@ module FireAndForget
       @client ||= Client.new(domain, socket)
     end
 
+    def reset_client!
+      @client = nil
+    end
+
     # Returns the path to the binary for the given task
     #
     # @param [Symbol] task_name the name of the task
@@ -77,8 +81,15 @@ module FireAndForget
       @tasks ||= {}
     end
 
-    attr_writer :socket
-    attr_writer :domain
+    def socket=(socket)
+      reset_client!
+      @socket = socket
+    end
+
+    def domain=(domain)
+      reset_client!
+      @domain = domain
+    end
 
     def socket
       @socket ||= (ENV[FireAndForget::ENV_SOCKET] || FireAndForget::DEFAULT_SOCKET)

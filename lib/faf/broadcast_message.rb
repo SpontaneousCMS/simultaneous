@@ -46,7 +46,7 @@ module FAF
       @domain && @event && !@data.empty?
     end
 
-    def to_src
+    def to_event
       lines = ["domain: #{domain}", "event: #{event}"]
       lines.concat(@data.map { |l| "data: #{l}" })
       lines.push("\n")

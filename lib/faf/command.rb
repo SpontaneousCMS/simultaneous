@@ -55,5 +55,6 @@ module FireAndForget
     autoload :GetStatus, "faf/command/get_status"
     autoload :SetPid, "faf/command/set_pid"
     autoload :GetPid, "faf/command/get_pid"
+    autoload :ClientEvent, "faf/command/client_event"
   end
 end
