@@ -99,6 +99,23 @@ module FireAndForget
       @domain ||= (ENV[FireAndForget::ENV_DOMAIN] || "domain#{$$}")
     end
 
+    # Used by the {FireAndForget::Daemon} module to set the correct PID for a given task
+    def map_pid(task_name, pid)
+      command = Command::SetPid.new(task_name, pid)
+      client.run(command)
+      puts "DONE"
+    end
+    alias_method :set_pid, :map_pid
+
+    def send_event(event, data)
+      puts "sending"
+      p [event, data]
+      p client
+      command = Command::ClientEvent.new(domain, event, data)
+      client.run(command)
+    end
+
+
     def to_arguments(params={})
       params.keys.sort { |a, b| a.to_s <=> b.to_s }.map do |key|
         %(--#{key}=#{to_parameter(params[key])})
@@ -149,5 +166,6 @@ FAF = FireAndForget unless defined?(FAF)
 require 'faf/broadcast_message'
 require 'faf/server'
 require 'faf/client'
+require 'faf/task'
 require 'faf/task_description'
 require 'faf/command'

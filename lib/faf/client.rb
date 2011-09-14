@@ -13,10 +13,13 @@ module FAF
 
     attr_reader :connection
 
-    def initialize(domain, *args)#(domain, socket_file)
+    def initialize(domain, *args, &block)#(domain, socket_file)
       @domain = domain
-      @connection = EventMachine.connect(*args, handler) do |connection|
-        connection.client = self
+      event_machine do
+        @connection = EventMachine.connect(*args, handler) do |connection|
+          connection.client = self
+          block.call(self) if block
+        end
       end
     end
 
@@ -53,6 +56,7 @@ module FAF
     end
 
     def notify!
+      puts "notify #{@message.event}"
       if @message.valid? and @message.domain == @domain
         subscribers[@message.event].each do |subscriber|
           subscriber.call(@message.data)
@@ -67,6 +71,15 @@ module FAF
 
     def subscribe(event, &block)
       subscribers[event.to_sym] << block
+    end
+
+    def event_machine(&block)
+      if EM.reactor_running?
+        block.call
+      else
+        Thread.new { EM.run }
+        EM.next_tick { block.call }
+      end
     end
   end
 end

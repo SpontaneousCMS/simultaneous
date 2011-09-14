@@ -116,5 +116,45 @@ describe FireAndForget::Server do
         end.join
       end
     end
+
+    it "should be able to trigger messages on the client" do
+      FAF.domain = "example.com"
+      FAF.socket = SOCKET
+      pids = {}
+
+
+      EM.run do
+        FAF::Server.start(SOCKET)
+
+        ENV[FAF::ENV_DOMAIN] = "example.com"
+        ENV[FAF::ENV_TASK_NAME] = "publish"
+        ENV[FAF::ENV_SOCKET] = SOCKET
+        Thread.new do
+          mock(FAF.client).run(is_a(FAF::Command::SetPid))
+          proxy(FAF.client).run(is_a(FAF::Command::ClientEvent))
+          # mock(FireAndForget::Server).pids { pids }
+          # mock(pids).[]=(:"publish", $$)
+          client = FAF::Client.new("example.com", SOCKET)
+          p client
+
+          client.subscribe(:publish_status) { |data|
+            puts "*"*50
+            data.must_equal "completed"
+            EM.stop
+          }
+        end.join
+
+        Thread.new do
+          class FAFTask
+            include FAF::Task
+            def run
+              faf_event("publish_status", "completed")
+            end
+          end
+          FAFTask.new.run
+        end.join
+
+      end
+    end
   end
 end
