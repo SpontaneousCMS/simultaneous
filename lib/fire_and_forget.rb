@@ -1,7 +1,5 @@
 # encoding: UTF-8
 
-require 'eventmachine'
-
 module FireAndForget
   DEFAULT_CONNECTION = "/tmp/faf-#{$$}.sock"
 
@@ -157,6 +155,12 @@ module FireAndForget
       end
     end
 
+    # Convert connection string into an argument array suitable for passing
+    # to EM.connect or EM.server
+    # e.g.
+    #   "/path/to/socket.sock" #=> ["/path/to/socket.sock"]
+    #   "localhost:9999" #=> ["localhost", 9999]
+    #
     def parse_connection(connection_string)
       if connection_string =~ %r{^([^/]+):(\d+)}
         [$1, $2.to_i]
@@ -183,13 +187,13 @@ module FireAndForget
   end
 
   extend ClassMethods
+
+  autoload :Server,           "faf/server"
+  autoload :Client,           "faf/client"
+  autoload :Task,             "faf/task"
+  autoload :TaskDescription,  "faf/task_description"
+  autoload :BroadcastMessage, "faf/broadcast_message"
+  autoload :Command,          "faf/command"
 end
 
 FAF = FireAndForget
-
-require 'faf/broadcast_message'
-require 'faf/server'
-require 'faf/client'
-require 'faf/task'
-require 'faf/task_description'
-require 'faf/command'

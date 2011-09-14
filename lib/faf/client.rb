@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+require 'eventmachine'
+
 module FAF
   class Client
 
