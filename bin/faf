@@ -9,6 +9,8 @@ $:.unshift(faf_path) if File.directory?(faf_path) && !$:.include?(faf_path)
 require 'eventmachine'
 require 'fire_and_forget'
 
+puts FAF.connection
+
 EventMachine.run do
-  FAF::Server.start_tcp
+  FAF::Server.start
 end

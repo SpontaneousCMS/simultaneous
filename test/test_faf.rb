@@ -46,4 +46,9 @@ describe FireAndForget do
     FAF.parse_connection("123.239.23.1:9999").must_equal ["123.239.23.1", 9999]
     FAF.parse_connection("host.domain.com:9999").must_equal ["host.domain.com", 9999]
   end
+
+  # it "should be able to determine socket type from conneciton string" do
+  #   FAF.client_connection_class("/path/to/socket.sock").must_equal UNIXSocket
+  #   FAF.client_connection_class("127.0.0.1:9999").must_equal TCPSocket
+  # end
 end

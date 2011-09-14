@@ -1,7 +1,9 @@
 # encoding: UTF-8
 
+require 'socket'
+
 module FireAndForget
-  DEFAULT_CONNECTION = "/tmp/faf-#{$$}.sock"
+  DEFAULT_CONNECTION = "/tmp/faf-server.sock"
 
   ENV_CONNECTION = "__FAF_CONNECTION"
   ENV_DOMAIN = "__FAF_DOMAIN"
@@ -46,16 +48,37 @@ module FireAndForget
     # @param [Hash] params parameters to pass to the executable
     def fire(task_name, params={})
       task = tasks[task_name]
+      p task
       command = Command::Fire.new(task, params)
+      p client
       client.run(command)
     end
 
+    def client=(client)
+      @client.close if @client
+      @client = client
+    end
+
     def client
-      @client ||= Client.new(domain, connection)
+      @client ||= if EM.reactor_running?
+                    Client.new(domain, connection)
+                  else
+                    TaskClient.new(domain, connection)
+                  end
+    end
+
+
+    def on_event(event, &block)
+      client.on_event(event, &block)
     end
 
     def reset_client!
       @client = nil
+    end
+
+    def reset!
+      reset_client!
+      @tasks = nil
     end
 
     # Returns the path to the binary for the given task
@@ -129,6 +152,10 @@ module FireAndForget
       client.run(command)
     end
 
+    def task_complete(task_name)
+      command = Command::TaskComplete.new(task_name)
+      client.run(command)
+    end
 
     def to_arguments(params={})
       params.keys.sort { |a, b| a.to_s <=> b.to_s }.map do |key|
@@ -155,6 +182,7 @@ module FireAndForget
       end
     end
 
+    TCP_CONNECTION_MATCH = %r{^([^/]+):(\d+)}
     # Convert connection string into an argument array suitable for passing
     # to EM.connect or EM.server
     # e.g.
@@ -162,10 +190,18 @@ module FireAndForget
     #   "localhost:9999" #=> ["localhost", 9999]
     #
     def parse_connection(connection_string)
-      if connection_string =~ %r{^([^/]+):(\d+)}
+      if connection_string =~ TCP_CONNECTION_MATCH
         [$1, $2.to_i]
       else
         [connection_string]
+      end
+    end
+
+    def client_connection(connection_string)
+      if connection_string =~ TCP_CONNECTION_MATCH
+        TCPSocket.new($1, $2.to_i)
+      else
+        UNIXSocket.new(connection_string)
       end
     end
 
@@ -190,6 +226,7 @@ module FireAndForget
 
   autoload :Server,           "faf/server"
   autoload :Client,           "faf/client"
+  autoload :TaskClient,       "faf/task_client"
   autoload :Task,             "faf/task"
   autoload :TaskDescription,  "faf/task_description"
   autoload :BroadcastMessage, "faf/broadcast_message"

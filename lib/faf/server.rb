@@ -23,6 +23,8 @@ module FAF
     end
 
     def self.run(command)
+      puts "Running:"
+      p command
       if Command.allowed?(command)
         puts command.debug if $debug
         command.run
@@ -46,6 +48,11 @@ module FAF
     def self.kill(task_name, signal="TERM")
       pid = pids[task_name]
       Process.kill(signal, pid) unless pid == 0
+    end
+
+    def self.task_complete(task_name)
+      pid = pids.delete(task_name)
+      puts "complete #{task_name} #{pid}"
     end
 
 

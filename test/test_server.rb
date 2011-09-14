@@ -2,6 +2,7 @@ require File.expand_path('../helper', __FILE__)
 
 describe FireAndForget::Server do
   before do
+    FAF.reset!
   end
 
   after do
@@ -98,7 +99,7 @@ describe FireAndForget::Server do
         mock(Process).detach(9999)
 
         mock(command).fork do |block|
-          mock(command).daemonize
+          mock(command).daemonize(%[/path/to/binary --param1="param1" --param2="param2"], is_a(String))
           mock(Process).setpriority(Process::PRIO_PROCESS, 0, niceness)
           mock(Process::UID).change_privilege(task_uid)
           mock(File).umask(0022)
@@ -146,20 +147,22 @@ describe FireAndForget::Server do
     end
 
     it "should be able to trigger messages on the client" do
-      FAF.domain = "example.com"
+      FAF.domain = "example2.com"
       FAF.connection = SOCKET
 
 
       EM.run do
         FAF::Server.start(SOCKET)
 
-        ENV[FAF::ENV_DOMAIN] = "example.com"
+        ENV[FAF::ENV_DOMAIN] = "example2.com"
         ENV[FAF::ENV_TASK_NAME] = "publish"
         ENV[FAF::ENV_CONNECTION] = SOCKET
 
-        mock(FAF.client).run(is_a(FAF::Command::SetPid))
-        proxy(FAF.client).run(is_a(FAF::Command::ClientEvent))
-        client = FAF::Client.new("example.com", SOCKET)
+        c = FAF::TaskClient.new("example2.com", SOCKET)
+        mock(FAF::TaskClient).new { c }
+        mock(c).run(is_a(FAF::Command::SetPid))
+        proxy(c).run(is_a(FAF::Command::ClientEvent))
+        client = FAF::Client.new("example2.com", SOCKET)
 
         client.on_event(:publish_status) { |data|
           data.must_equal "completed"
@@ -181,20 +184,22 @@ describe FireAndForget::Server do
 
     it "should be able to kill task processes" do
       pid = 99999
-      pids = {"example.com/publish" => pid}
-      FAF.domain = "example.com"
+      pids = {"example3.com/publish" => pid}
+      FAF.domain = "example3.com"
       FAF.connection = SOCKET
 
 
       EM.run do
         FAF::Server.start(SOCKET)
 
-        ENV[FAF::ENV_DOMAIN] = "example.com"
+        ENV[FAF::ENV_DOMAIN] = "example3.com"
         ENV[FAF::ENV_TASK_NAME] = "publish"
         ENV[FAF::ENV_CONNECTION] = SOCKET
 
-        mock(FAF.client).run(is_a(FAF::Command::SetPid))
-        proxy(FAF.client).run(is_a(FAF::Command::Kill))
+        c = FAF::TaskClient.new("example3.com", SOCKET)
+        mock(FAF::TaskClient).new { c }
+        mock(c).run(is_a(FAF::Command::SetPid))
+        proxy(c).run(is_a(FAF::Command::Kill))
 
         mock(FAF::Task).pid { pid }
         mock(FireAndForget::Server).pids { pids }
@@ -209,6 +214,35 @@ describe FireAndForget::Server do
           mock(Process).kill("TERM", pid) { EM.stop }
           FAF.kill(:publish)
         end.join
+      end
+    end
+
+    it "should divert STDOUT and STDERR to file and inform the server when finished" do
+      FAF.domain = "example4.com"
+      FAF.connection = SOCKET
+
+      EM.run do
+        FAF::Server.start(SOCKET)
+        # mock(FAF::Server).task_complete("example4.com/example") { EM.stop }
+        task = FAF.add_task(:example, File.expand_path("../tasks/example.rb", __FILE__))
+        # command = FAF::Command::Fire.new(task)
+        # stub(Process::UID).change_privilege(anything)
+          proxy(FAF::Server).run(is_a(FAF::Command::Fire))
+          mock(FAF::Server).run(is_a(FAF::Command::SetPid)) { puts "PID" }
+          mock(FAF::Server).run(is_a(FAF::Command::ClientEvent)) { puts "EVENT" }
+          mock(FAF::Server).run(is_a(FAF::Command::TaskComplete)) { EM.stop }
+          # FAF.client.on_event(:"example") { |data|
+          #   puts "\\\\\\\\n\\\\\\\\nEVENT #{data}"
+          # }
+          # p command.valid?
+          #
+          # Thread.new do
+          puts ">"*50
+          puts ">"*50
+        # end.join
+        EM.schedule do
+        FAF.fire(:example, {"param" => "value"})
+        end
       end
     end
   end

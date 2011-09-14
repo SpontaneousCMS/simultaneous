@@ -9,13 +9,11 @@ module FAF
     attr_reader :connection, :domain
 
     def initialize(domain, connection_string, &block)
+      @connection_string = connection_string
       @domain = domain
-      event_machine do
-        @connection = EventMachine.connect(*FAF.parse_connection(connection_string), handler) do |connection|
-          connection.client = self
-          block.call(self) if block
-        end
-      end
+      @callbacks = []
+      @connection = nil
+      connect
     end
 
     def handler
@@ -26,21 +24,54 @@ module FAF
         def client; @client end
 
         def receive_line(line)
+          puts "receieved #{line.inspect}"
           client.receive(line)
         end
       end
       handler
     end
 
+    def close
+      puts "Client.close"
+      @connection.close_connection_after_writing if @connection
+    end
+
     def run(command)
+      puts "RUN #{command.inspect}"
       command.domain = self.domain
       send(command.dump)
     end
 
     def send(message)
-      connection.send_data("#{message}\n")
+      connection do |c|
+        puts "Sending #{message.inspect}"
+        p c
+        c.send_data(message)
+      end
     end
 
+    def connection(&callback)
+      # if @connection
+      #   puts "CONNECTION #{callback}"
+        callback.call(@connection)
+      # else
+      #   puts "DEFERRED #{callback} #{@callbacks.length}"
+      #   @callbacks << callback
+      #   # connect
+      # end
+    end
+
+    def connect
+      event_machine do
+        EventMachine.connect(*FAF.parse_connection(@connection_string), handler) do |conn|
+          conn.client = self
+          puts "CONNECTED #{@callbacks.length}"
+          @connection = conn
+          # @callbacks.each { |block| block.call(conn) }
+          # @callbacks = []
+        end
+      end
+    end
 
     def receive(data)
       if data == ""

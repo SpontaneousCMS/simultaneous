@@ -53,12 +53,12 @@ module FireAndForget
       def run
         if valid?
           pid = fork do
-            # set up the environment so that the task can access the F&F server
+            ## set up the environment so that the task can access the F&F server
             env.each { | k, v | ENV[k] = v }
-            # TODO: figure out how to pass a logfile path to this
-            daemonize
+            ## TODO: figure out how to pass a logfile path to this
+            daemonize(cmd, "/Users/garry/Dropbox/Development/spontaneous3/sockets/log/example.log")
             Process.setpriority(Process::PRIO_PROCESS, 0, niceness) if niceness > 0
-            # change to the UID of the originating thread if necessary
+            ## change to the UID of the originating thread if necessary
             Process::UID.change_privilege(task_uid) unless Process.euid == task_uid
             File.umask(0022)
             exec(cmd)
@@ -77,7 +77,7 @@ module FireAndForget
       private
 
       # The following adapted from Daemons.daemonize
-      def daemonize(logfile_name = nil, app_name = nil)
+      def daemonize(app_name = nil, logfile_name = nil)
         srand # Split rand streams between spawning and daemonized process
           safefork and exit # Fork and exit from the parent
 

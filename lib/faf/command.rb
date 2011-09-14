@@ -66,9 +66,10 @@ module FireAndForget
     end
 
 
-    autoload :Fire, "faf/command/fire"
-    autoload :Kill, "faf/command/kill"
-    autoload :SetPid, "faf/command/set_pid"
-    autoload :ClientEvent, "faf/command/client_event"
+    autoload :Fire,         "faf/command/fire"
+    autoload :Kill,         "faf/command/kill"
+    autoload :SetPid,       "faf/command/set_pid"
+    autoload :ClientEvent,  "faf/command/client_event"
+    autoload :TaskComplete, "faf/command/task_complete"
   end
 end

@@ -13,7 +13,7 @@ describe FireAndForget::Client do
       FAF.connection = SOCKET
       FAF::Server.start
 
-      mock(FAF::Server).receive_data("dumpedcommand\n") { EM.stop }
+      mock(FAF::Server).receive_data("dumpedcommand") { EM.stop }
 
       Thread.new {
         pid = FAF.publish({:param2 => "value3"})
