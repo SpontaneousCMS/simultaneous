@@ -103,14 +103,10 @@ module FireAndForget
     def map_pid(task_name, pid)
       command = Command::SetPid.new(task_name, pid)
       client.run(command)
-      puts "DONE"
     end
     alias_method :set_pid, :map_pid
 
     def send_event(event, data)
-      puts "sending"
-      p [event, data]
-      p client
       command = Command::ClientEvent.new(domain, event, data)
       client.run(command)
     end

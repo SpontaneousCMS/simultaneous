@@ -135,10 +135,8 @@ describe FireAndForget::Server do
           # mock(FireAndForget::Server).pids { pids }
           # mock(pids).[]=(:"publish", $$)
           client = FAF::Client.new("example.com", SOCKET)
-          p client
 
           client.subscribe(:publish_status) { |data|
-            puts "*"*50
             data.must_equal "completed"
             EM.stop
           }

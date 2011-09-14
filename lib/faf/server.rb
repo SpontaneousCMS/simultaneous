@@ -20,8 +20,6 @@ module FAF
     end
 
     def self.broadcast(data)
-      puts "broadcast"
-      p data
       channel << data
     end
 
@@ -33,8 +31,6 @@ module FAF
     def self.run(command)
       if Command.allowed?(command)
         puts command.debug if $debug
-        puts "running"
-        p command
         command.run
       else
         raise PermissionsError, "'#{command.class}' is not an approved command"

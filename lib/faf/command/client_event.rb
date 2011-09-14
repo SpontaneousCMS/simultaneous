@@ -14,7 +14,6 @@ module FireAndForget
           :event => @event,
           :data => @data
         })
-        p message
         FAF::Server.broadcast(message.to_event)
       end
     end
