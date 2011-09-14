@@ -2,6 +2,7 @@ require File.expand_path('../helper', __FILE__)
 
 describe FireAndForget::Command do
   before do
+    FAF.domain = "example.net"
     @task = FAF::TaskDescription.new(:publish, "/publish", 9, {:param1 => "value1", :param2 => "value2"})
   end
   it "should serialize and deserialize correctly" do
@@ -17,8 +18,9 @@ describe FireAndForget::Command do
 
   it "should set the pid for a task" do
     cmd = FAF::Command::SetStatus.new(:publish, :doing)
+    cmd.domain = "example.net"
     FAF::Server.run(cmd)
-    FAF::Server.pids[:publish].must_equal $$
+    FAF::Server.pids["example.net/publish"].must_equal $$
   end
 
   it "should set status for a task" do

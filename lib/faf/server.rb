@@ -7,16 +7,8 @@ module FAF
       @channel ||= EM::Channel.new
     end
 
-    def self.start_unix(socket = FAF.socket)
-      self.start(socket)
-    end
-
-    def self.start_tcp(host = DEFAULT_HOST, port = FAF::DEFAULT_PORT)
-      self.start(host, port)
-    end
-
-    def self.start(*args)
-      EventMachine::start_server(*args, self)
+    def self.start(connection_string = FAF.connection)
+      EventMachine::start_server(*FAF.parse_connection(connection_string), self)
     end
 
     def self.broadcast(data)

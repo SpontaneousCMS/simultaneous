@@ -29,12 +29,21 @@ describe FireAndForget do
   end
 
   it "should enable setting of path to socket" do
-    FAF.socket = "/tmp/something"
-    FAF.socket.must_equal  "/tmp/something"
+    FAF.connection = "/tmp/something"
+    FAF.connection.must_equal  "/tmp/something"
   end
 
   it "should enable setting of domain" do
     FAF.domain = "domain_name"
     FAF.domain.must_equal  "domain_name"
+  end
+
+  it "should be able to parse connection strings" do
+    FAF.parse_connection("/path/to/socket.sock").must_equal ["/path/to/socket.sock"]
+    FAF.parse_connection("socket.sock").must_equal ["socket.sock"]
+    FAF.parse_connection("localhost:1234").must_equal ["localhost", 1234]
+    FAF.parse_connection("127.0.0.1:9999").must_equal ["127.0.0.1", 9999]
+    FAF.parse_connection("123.239.23.1:9999").must_equal ["123.239.23.1", 9999]
+    FAF.parse_connection("host.domain.com:9999").must_equal ["host.domain.com", 9999]
   end
 end

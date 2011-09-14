@@ -11,7 +11,7 @@ module FireAndForget
       end
 
       def run
-        FireAndForget::Server.pids[@task_name]
+        FireAndForget::Server.pids[namespaced_task_name]
       end
     end
   end

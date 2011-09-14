@@ -3,11 +3,9 @@
 require 'eventmachine'
 
 module FireAndForget
-  DEFAULT_SOCKET = "/tmp/faf.sock"
-  DEFAULT_HOST = "127.0.0.1"
-  DEFAULT_PORT = 9999
+  DEFAULT_CONNECTION = "/tmp/faf-#{$$}.sock"
 
-  ENV_SOCKET = "__FAF_SOCKET"
+  ENV_CONNECTION = "__FAF_CONNECTION"
   ENV_DOMAIN = "__FAF_DOMAIN"
   ENV_TASK_NAME = "__FAF_TASK_NAME"
 
@@ -55,7 +53,7 @@ module FireAndForget
     end
 
     def client
-      @client ||= Client.new(domain, socket)
+      @client ||= Client.new(domain, connection)
     end
 
     def reset_client!
@@ -81,9 +79,9 @@ module FireAndForget
       @tasks ||= {}
     end
 
-    def socket=(socket)
+    def connection=(connection)
       reset_client!
-      @socket = socket
+      @connection = connection
     end
 
     def domain=(domain)
@@ -91,12 +89,12 @@ module FireAndForget
       @domain = domain
     end
 
-    def socket
-      @socket ||= (ENV[FireAndForget::ENV_SOCKET] || FireAndForget::DEFAULT_SOCKET)
+    def connection
+      @connection ||= (ENV[FAF::ENV_CONNECTION] || FAF::DEFAULT_CONNECTION)
     end
 
     def domain
-      @domain ||= (ENV[FireAndForget::ENV_DOMAIN] || "domain#{$$}")
+      @domain ||= (ENV[FAF::ENV_DOMAIN] || "domain#{$$}")
     end
 
     # Used by the {FireAndForget::Daemon} module to set the correct PID for a given task
@@ -104,6 +102,7 @@ module FireAndForget
       command = Command::SetPid.new(task_name, pid)
       client.run(command)
     end
+
     alias_method :set_pid, :map_pid
 
     def send_event(event, data)
@@ -137,6 +136,14 @@ module FireAndForget
       end
     end
 
+    def parse_connection(connection_string)
+      if connection_string =~ %r{^([^/]+):(\d+)}
+        [$1, $2.to_i]
+      else
+        [connection_string]
+      end
+    end
+
     protected
 
     # Catch method missing to enable launching of tasks by direct name
@@ -157,7 +164,7 @@ module FireAndForget
   extend ClassMethods
 end
 
-FAF = FireAndForget unless defined?(FAF)
+FAF = FireAndForget
 
 require 'faf/broadcast_message'
 require 'faf/server'

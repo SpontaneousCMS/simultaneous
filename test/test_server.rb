@@ -72,8 +72,12 @@ describe FireAndForget::Server do
       }
     end
   end
+
   describe "Task" do
     it "should make it intact from client to process" do
+      FAF.domain = "example.org"
+      FAF.connection = SOCKET
+
       default_params = { :param1 => "param1" }
       env = { "ENV_PARAM" => "envparam" }
       args = {:param2 => "param2"}
@@ -87,8 +91,6 @@ describe FireAndForget::Server do
       mock(FAF::Command).load(is_a(String)) { command }
       mock(command).valid? { true }
       mock(command).task_uid.twice { task_uid }
-      FAF.domain = "example.org"
-      FAF.socket = SOCKET
 
       EM.run do
         FAF::Server.start(SOCKET)
@@ -106,7 +108,7 @@ describe FireAndForget::Server do
           ENV["ENV_PARAM"].must_equal "envparam"
           ENV[FAF::ENV_DOMAIN].must_equal "example.org"
           ENV[FAF::ENV_TASK_NAME].must_equal "publish"
-          ENV[FAF::ENV_SOCKET].must_equal SOCKET
+          ENV[FAF::ENV_CONNECTION].must_equal SOCKET
           EM.stop
           9999
         end
@@ -121,7 +123,7 @@ describe FireAndForget::Server do
       pids = {}
       pid = 99999
       FAF.domain = "example.com"
-      FAF.socket = SOCKET
+      FAF.connection = SOCKET
 
 
       EM.run do
@@ -129,11 +131,11 @@ describe FireAndForget::Server do
 
         ENV[FAF::ENV_DOMAIN] = "example.com"
         ENV[FAF::ENV_TASK_NAME] = "publish"
-        ENV[FAF::ENV_SOCKET] = SOCKET
+        ENV[FAF::ENV_CONNECTION] = SOCKET
 
         mock(FAF::Task).pid { pid }
         mock(FireAndForget::Server).pids { pids }
-        mock(pids).[]=(:"publish", pid) { EM.stop }
+        mock(pids).[]=("example.com/publish", pid) { EM.stop }
 
         Thread.new do
           class FAFTask
@@ -145,7 +147,7 @@ describe FireAndForget::Server do
 
     it "should be able to trigger messages on the client" do
       FAF.domain = "example.com"
-      FAF.socket = SOCKET
+      FAF.connection = SOCKET
 
 
       EM.run do
@@ -153,7 +155,7 @@ describe FireAndForget::Server do
 
         ENV[FAF::ENV_DOMAIN] = "example.com"
         ENV[FAF::ENV_TASK_NAME] = "publish"
-        ENV[FAF::ENV_SOCKET] = SOCKET
+        ENV[FAF::ENV_CONNECTION] = SOCKET
 
         mock(FAF.client).run(is_a(FAF::Command::SetPid))
         proxy(FAF.client).run(is_a(FAF::Command::ClientEvent))

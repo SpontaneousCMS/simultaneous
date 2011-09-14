@@ -9,7 +9,7 @@ module FireAndForget
       end
 
       def run
-        FireAndForget::Server.status[@task_name]
+        FireAndForget::Server.status[namespaced_task_name]
       end
     end
   end

@@ -9,7 +9,7 @@ module FireAndForget
       end
 
       def run
-        FireAndForget::Server.kill(@task_name, @signal)
+        FireAndForget::Server.kill(namespaced_task_name, @signal)
       end
     end
   end

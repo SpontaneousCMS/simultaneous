@@ -3,20 +3,13 @@
 module FAF
   class Client
 
-    def self.socket_client(domain, socket = FAF::DEFAULT_SOCKET)
-      self.new(domain, socket)
-    end
 
-    def self.tcp_client(domain, host = DEFAULT_HOST, port = FAF::DEFAULT_PORT)
-      self.new(domain, host, port)
-    end
+    attr_reader :connection, :domain
 
-    attr_reader :connection
-
-    def initialize(domain, *args, &block)
+    def initialize(domain, connection_string, &block)
       @domain = domain
       event_machine do
-        @connection = EventMachine.connect(*args, handler) do |connection|
+        @connection = EventMachine.connect(*FAF.parse_connection(connection_string), handler) do |connection|
           connection.client = self
           block.call(self) if block
         end
@@ -38,6 +31,7 @@ module FAF
     end
 
     def run(command)
+      command.domain = self.domain
       send(command.dump)
     end
 

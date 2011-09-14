@@ -19,10 +19,11 @@ module FireAndForget
     end
 
     class CommandBase
-      attr_reader :tag, :cmd, :params, :task
+      attr_reader :tag, :cmd, :params, :task, :domain
 
       def initialize(task, params={})
         @task, @params = task, merge_params(task.params, params)
+        @task_name = task.name
       end
 
       def dump
@@ -33,6 +34,21 @@ module FireAndForget
         # overridden in subclasses
       end
 
+      def domain=(domain)
+        @domain = domain
+      end
+
+      def domain
+        @domain ||= ""
+      end
+
+      def task_name
+        @task_name.to_s
+      end
+
+      def namespaced_task_name
+        "#{domain}/#{task_name}"
+      end
 
       def merge_params(task_params, call_params)
         params = task_params.to_a.inject({}) do |hash, (key, value)|
@@ -48,6 +64,7 @@ module FireAndForget
         "#{self.class.name.split("::").last} :#{@task_name}\n"
       end
     end
+
 
     autoload :Fire, "faf/command/fire"
     autoload :Kill, "faf/command/kill"

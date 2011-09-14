@@ -44,9 +44,9 @@ module FireAndForget
 
       def env
         @task.env.merge({
-          FireAndForget::ENV_SOCKET => FireAndForget.socket,
-          FireAndForget::ENV_TASK_NAME => @task.name.to_s,
-          FireAndForget::ENV_DOMAIN => FireAndForget.domain
+          FireAndForget::ENV_CONNECTION => FireAndForget.connection,
+          FireAndForget::ENV_TASK_NAME => task_name,
+          FireAndForget::ENV_DOMAIN => domain
         })
       end
 
@@ -71,7 +71,7 @@ module FireAndForget
       end
 
       def debug
-        "Fire :#{@task.name}: #{cmd}\n"
+        "Fire :#{namespaced_task_name}: #{cmd}\n"
       end
 
       private

@@ -10,12 +10,12 @@ module FireAndForget
       end
 
       def run
-        FireAndForget::Server.set_pid(@task_name, @pid)
-        FireAndForget::Server.status[@task_name] = @status_value.to_s
+        FireAndForget::Server.set_pid(namespaced_task_name, @pid)
+        FireAndForget::Server.status[namespaced_task_name] = @status_value.to_s
       end
 
       def debug
-        "SetStatus :#{@task_name}: #{@status_value}\n"
+        "SetStatus :#{namespaced_task_name}: #{@status_value}\n"
       end
     end
   end
