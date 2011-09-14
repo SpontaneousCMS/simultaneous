@@ -5,8 +5,12 @@ module FireAndForget
       ENV[FireAndForget::ENV_TASK_NAME]
     end
 
+    def self.pid
+      $$
+    end
+
     def self.included(klass)
-      FireAndForget.set_pid(self.task_name, $$)
+      FireAndForget.set_pid(self.task_name, pid)
     rescue Errno::ECONNREFUSED
       puts "Errno::ECONNREFUSED"
       # server isn't running but we don't want this to stop our script

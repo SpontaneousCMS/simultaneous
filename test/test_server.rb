@@ -117,10 +117,11 @@ describe FireAndForget::Server do
       end
     end
 
-    it "should be able to trigger messages on the client" do
+    it "should report back to the server to set the task PID" do
+      pids = {}
+      pid = 99999
       FAF.domain = "example.com"
       FAF.socket = SOCKET
-      pids = {}
 
 
       EM.run do
@@ -129,18 +130,39 @@ describe FireAndForget::Server do
         ENV[FAF::ENV_DOMAIN] = "example.com"
         ENV[FAF::ENV_TASK_NAME] = "publish"
         ENV[FAF::ENV_SOCKET] = SOCKET
-        Thread.new do
-          mock(FAF.client).run(is_a(FAF::Command::SetPid))
-          proxy(FAF.client).run(is_a(FAF::Command::ClientEvent))
-          # mock(FireAndForget::Server).pids { pids }
-          # mock(pids).[]=(:"publish", $$)
-          client = FAF::Client.new("example.com", SOCKET)
 
-          client.subscribe(:publish_status) { |data|
-            data.must_equal "completed"
-            EM.stop
-          }
+        mock(FAF::Task).pid { pid }
+        mock(FireAndForget::Server).pids { pids }
+        mock(pids).[]=(:"publish", pid) { EM.stop }
+
+        Thread.new do
+          class FAFTask
+            include FAF::Task
+          end
         end.join
+      end
+    end
+
+    it "should be able to trigger messages on the client" do
+      FAF.domain = "example.com"
+      FAF.socket = SOCKET
+
+
+      EM.run do
+        FAF::Server.start(SOCKET)
+
+        ENV[FAF::ENV_DOMAIN] = "example.com"
+        ENV[FAF::ENV_TASK_NAME] = "publish"
+        ENV[FAF::ENV_SOCKET] = SOCKET
+
+        mock(FAF.client).run(is_a(FAF::Command::SetPid))
+        proxy(FAF.client).run(is_a(FAF::Command::ClientEvent))
+        client = FAF::Client.new("example.com", SOCKET)
+
+        client.subscribe(:publish_status) { |data|
+          data.must_equal "completed"
+          EM.stop
+        }
 
         Thread.new do
           class FAFTask
