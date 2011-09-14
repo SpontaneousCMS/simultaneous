@@ -19,7 +19,7 @@ module FireAndForget
     end
 
     class CommandBase
-      attr_reader :tag, :cmd, :params, :task, :domain
+      attr_reader :tag, :cmd, :params, :task
 
       def initialize(task, params={})
         @task, @params = task, merge_params(task.params, params)

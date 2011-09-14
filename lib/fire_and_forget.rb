@@ -110,6 +110,27 @@ module FireAndForget
       client.run(command)
     end
 
+    # Sends a running task the TERM signal
+    def term(task_name)
+      kill(task_name, "TERM")
+    end
+
+    # Sends a running task the INT signal
+    def int(task_name)
+      kill(task_name, "INT")
+    end
+
+    # Sends a running task an arbitrary signal
+    #
+    # @param [Symbol] task_name the name of the task to send the signal
+    # @param [String] signal the signal to send
+    #
+    # @see Signal#list for a full list of signals available
+    def kill(task_name, signal="TERM")
+      command = Command::Kill.new(task_name, signal)
+      client.run(command)
+    end
+
 
     def to_arguments(params={})
       params.keys.sort { |a, b| a.to_s <=> b.to_s }.map do |key|

@@ -178,5 +178,38 @@ describe FireAndForget::Server do
 
       end
     end
+
+    it "should be able to kill task processes" do
+      pid = 99999
+      pids = {"example.com/publish" => pid}
+      FAF.domain = "example.com"
+      FAF.connection = SOCKET
+
+
+      EM.run do
+        FAF::Server.start(SOCKET)
+
+        ENV[FAF::ENV_DOMAIN] = "example.com"
+        ENV[FAF::ENV_TASK_NAME] = "publish"
+        ENV[FAF::ENV_CONNECTION] = SOCKET
+
+        mock(FAF.client).run(is_a(FAF::Command::SetPid))
+        proxy(FAF.client).run(is_a(FAF::Command::Kill))
+
+        mock(FAF::Task).pid { pid }
+        mock(FireAndForget::Server).pids { pids }
+
+        Thread.new do
+          class FAFTask
+            include FAF::Task
+          end
+        end.join
+
+        Thread.new do
+          mock(Process).kill("TERM", pid) { EM.stop }
+          FAF.kill(:publish)
+        end.join
+      end
+    end
   end
 end

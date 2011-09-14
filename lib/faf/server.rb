@@ -45,6 +45,11 @@ module FAF
       @pids ||= {}
     end
 
+    def self.kill(task_name, signal="TERM")
+      pid = pids[task_name]
+      Process.kill(signal, pid) unless pid == 0
+    end
+
 
     def channel
       FAF::Server.channel
