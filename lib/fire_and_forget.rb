@@ -48,9 +48,7 @@ module FireAndForget
     # @param [Hash] params parameters to pass to the executable
     def fire(task_name, params={})
       task = tasks[task_name]
-      p task
       command = Command::Fire.new(task, params)
-      p client
       client.run(command)
     end
 

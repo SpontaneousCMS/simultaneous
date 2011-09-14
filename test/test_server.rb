@@ -220,29 +220,14 @@ describe FireAndForget::Server do
     it "should divert STDOUT and STDERR to file and inform the server when finished" do
       FAF.domain = "example4.com"
       FAF.connection = SOCKET
-
       EM.run do
         FAF::Server.start(SOCKET)
-        # mock(FAF::Server).task_complete("example4.com/example") { EM.stop }
         task = FAF.add_task(:example, File.expand_path("../tasks/example.rb", __FILE__))
-        # command = FAF::Command::Fire.new(task)
-        # stub(Process::UID).change_privilege(anything)
-          proxy(FAF::Server).run(is_a(FAF::Command::Fire))
-          mock(FAF::Server).run(is_a(FAF::Command::SetPid)) { puts "PID" }
-          mock(FAF::Server).run(is_a(FAF::Command::ClientEvent)) { puts "EVENT" }
-          mock(FAF::Server).run(is_a(FAF::Command::TaskComplete)) { EM.stop }
-          # FAF.client.on_event(:"example") { |data|
-          #   puts "\\\\\\\\n\\\\\\\\nEVENT #{data}"
-          # }
-          # p command.valid?
-          #
-          # Thread.new do
-          puts ">"*50
-          puts ">"*50
-        # end.join
-        EM.schedule do
-        FAF.fire(:example, {"param" => "value"})
-        end
+        proxy(FAF::Server).run(is_a(FAF::Command::Fire))
+        mock(FAF::Server).run(is_a(FAF::Command::SetPid))
+        mock(FAF::Server).run(is_a(FAF::Command::ClientEvent))
+        mock(FAF::Server).run(is_a(FAF::Command::TaskComplete)) { EM.stop }
+        FAF.fire(:example, { "param" => "value" })
       end
     end
   end

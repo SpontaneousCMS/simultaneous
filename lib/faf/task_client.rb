@@ -12,8 +12,6 @@ module FireAndForget
     end
 
     def run(command)
-      puts "TaskClient#run"
-      p command
       command.domain = self.domain
       send(command.dump)
     end

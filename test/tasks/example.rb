@@ -10,9 +10,7 @@ class MyTask
   include FAF::Task
   def run
     puts ARGV[0]
-    # sleep(10)
     faf_event("example", "done")
-    puts "DONE "*10
   end
 end
 

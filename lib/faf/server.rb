@@ -23,8 +23,6 @@ module FAF
     end
 
     def self.run(command)
-      puts "Running:"
-      p command
       if Command.allowed?(command)
         puts command.debug if $debug
         command.run
@@ -52,9 +50,7 @@ module FAF
 
     def self.task_complete(task_name)
       pid = pids.delete(task_name)
-      puts "complete #{task_name} #{pid}"
     end
-
 
     def channel
       FAF::Server.channel
