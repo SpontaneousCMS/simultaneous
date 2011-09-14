@@ -68,7 +68,7 @@ module FAF
       @subscribers ||= Hash.new { |hash, key| hash[key] = [] }
     end
 
-    def subscribe(event, &block)
+    def on_event(event, &block)
       subscribers[event.to_sym] << block
     end
 

@@ -23,12 +23,12 @@ describe FireAndForget::Server do
 
         command = FAF::Command::ClientEvent.new("domain1", "a", "data")
 
-        client1.subscribe(:a) { |data| result1 = [:a, data] }
-        client2.subscribe(:a) { |data| result2 = [:a, data] }
-        client3.subscribe(:a) { |data| result3 = [:a, data] }
-        client1.subscribe(:b) { |data| result4 = [:b, data] }
-        client2.subscribe(:b) { |data| result5 = [:b, data] }
-        client3.subscribe(:b) { |data| result6 = [:b, data] }
+        client1.on_event(:a) { |data| result1 = [:a, data] }
+        client2.on_event(:a) { |data| result2 = [:a, data] }
+        client3.on_event(:a) { |data| result3 = [:a, data] }
+        client1.on_event(:b) { |data| result4 = [:b, data] }
+        client2.on_event(:b) { |data| result5 = [:b, data] }
+        client3.on_event(:b) { |data| result6 = [:b, data] }
 
         $receive_count = 0
 
@@ -159,7 +159,7 @@ describe FireAndForget::Server do
         proxy(FAF.client).run(is_a(FAF::Command::ClientEvent))
         client = FAF::Client.new("example.com", SOCKET)
 
-        client.subscribe(:publish_status) { |data|
+        client.on_event(:publish_status) { |data|
           data.must_equal "completed"
           EM.stop
         }
