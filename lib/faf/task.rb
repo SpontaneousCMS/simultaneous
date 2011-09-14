@@ -22,11 +22,5 @@ module FireAndForget
     rescue Errno::ECONNREFUSED
       # server isn't running but we don't want this to stop our script
     end
-
-    def set_task_status(status)
-      FireAndForget.set_status(FireAndForget::Daemon.task_name, status)
-    rescue Errno::ECONNREFUSED
-      # server isn't running but we don't want this to stop our script
-    end
   end
 end

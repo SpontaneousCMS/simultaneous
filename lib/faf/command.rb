@@ -68,7 +68,6 @@ module FireAndForget
 
     autoload :Fire, "faf/command/fire"
     autoload :Kill, "faf/command/kill"
-    autoload :SetStatus, "faf/command/set_status"
     autoload :SetPid, "faf/command/set_pid"
     autoload :ClientEvent, "faf/command/client_event"
   end

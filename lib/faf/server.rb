@@ -31,10 +31,6 @@ module FAF
       end
     end
 
-    def self.status
-      @status ||= {}
-    end
-
     def self.set_pid(task_name, pid)
       pids[task_name] = pid.to_i
     end

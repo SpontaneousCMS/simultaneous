@@ -16,13 +16,6 @@ describe FireAndForget::Command do
     cmd.params.must_equal({"param1" => "value1", "param2" => "newvalue2", "param3" => "value3"})
   end
 
-  it "should set the pid for a task" do
-    cmd = FAF::Command::SetStatus.new(:publish, :doing)
-    cmd.domain = "example.net"
-    FAF::Server.run(cmd)
-    FAF::Server.pids["example.net/publish"].must_equal $$
-  end
-
   it "should only run scripts belonging to the same user as the ruby process" do
     stub(File).exist?("/publish") { true }
     stub(File).exists?("/publish") { true }
