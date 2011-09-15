@@ -8,7 +8,7 @@ module FireAndForget
 
     def initialize(domain = FAF.domain, connection_string=FAF.connection)
       @domain = domain
-      @connection_string = connection_string
+      @connection = FAF::Connection.new(connection_string)
     end
 
     def run(command)
@@ -23,14 +23,8 @@ module FireAndForget
     end
 
     def connect
-      connection = nil
-      begin
-        connection = FAF.client_connection(@connection_string)
-        yield(connection)
-        connection.flush
-        connection.close_write
-      ensure
-        connection.close if connection rescue nil
+      @connection.sync_socket do |socket|
+        yield(socket)
       end
     end
 

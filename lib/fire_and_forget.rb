@@ -222,6 +222,7 @@ module FireAndForget
 
   extend ClassMethods
 
+  autoload :Connection,       "faf/connection"
   autoload :Server,           "faf/server"
   autoload :Client,           "faf/client"
   autoload :TaskClient,       "faf/task_client"

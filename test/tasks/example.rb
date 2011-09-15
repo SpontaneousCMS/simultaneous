@@ -8,6 +8,7 @@ require 'fire_and_forget'
 
 class MyTask
   include FAF::Task
+
   def run
     puts ARGV[0]
     faf_event("example", "done")

@@ -2,7 +2,6 @@ GEM
   remote: http://rubygems.org/
   specs:
     eventmachine (0.12.10)
-    formatador (0.2.1)
     rr (1.0.4)
 
 PLATFORMS
@@ -10,5 +9,4 @@ PLATFORMS
 
 DEPENDENCIES
   eventmachine
-  formatador
   rr

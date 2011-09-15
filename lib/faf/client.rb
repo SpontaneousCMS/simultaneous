@@ -6,13 +6,13 @@ module FAF
   class Client
 
 
-    attr_reader :connection, :domain
+    attr_reader :domain
 
     def initialize(domain, connection_string, &block)
-      @connection_string = connection_string
+      @connection = FAF::Connection.new(connection_string)
       @domain = domain
       @callbacks = []
-      @connection = nil
+      @socket = nil
       connect
     end
 
@@ -31,7 +31,7 @@ module FAF
     end
 
     def close
-      @connection.close_connection_after_writing if @connection
+      @socket.close_connection_after_writing if @socket
     end
 
     def run(command)
@@ -46,14 +46,15 @@ module FAF
     end
 
     def connection(&callback)
-      callback.call(@connection)
+      callback.call(@socket)
     end
 
     def connect
       event_machine do
-        EventMachine.connect(*FAF.parse_connection(@connection_string), handler) do |conn|
+        # EventMachine.connect(*FAF.parse_connection(@connection_string), handler) do |conn|
+        @connection.async_socket(handler) do |conn|
           conn.client = self
-          @connection = conn
+          @socket = conn
         end
       end
     end

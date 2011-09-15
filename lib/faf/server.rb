@@ -10,7 +10,8 @@ module FAF
     end
 
     def self.start(connection_string = FAF.connection)
-      EventMachine::start_server(*FAF.parse_connection(connection_string), self)
+      connection = FAF::Connection.new(connection_string)
+      connection.start_server(self)
     end
 
     def self.broadcast(data)

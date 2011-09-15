@@ -38,17 +38,4 @@ describe FireAndForget do
     FAF.domain.must_equal  "domain_name"
   end
 
-  it "should be able to parse connection strings" do
-    FAF.parse_connection("/path/to/socket.sock").must_equal ["/path/to/socket.sock"]
-    FAF.parse_connection("socket.sock").must_equal ["socket.sock"]
-    FAF.parse_connection("localhost:1234").must_equal ["localhost", 1234]
-    FAF.parse_connection("127.0.0.1:9999").must_equal ["127.0.0.1", 9999]
-    FAF.parse_connection("123.239.23.1:9999").must_equal ["123.239.23.1", 9999]
-    FAF.parse_connection("host.domain.com:9999").must_equal ["host.domain.com", 9999]
-  end
-
-  # it "should be able to determine socket type from conneciton string" do
-  #   FAF.client_connection_class("/path/to/socket.sock").must_equal UNIXSocket
-  #   FAF.client_connection_class("127.0.0.1:9999").must_equal TCPSocket
-  # end
 end
