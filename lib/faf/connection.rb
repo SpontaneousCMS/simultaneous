@@ -4,8 +4,14 @@ module FireAndForget
   class Connection
     TCP_CONNECTION_MATCH = %r{^([^/]+):(\d+)}
 
-    def initialize(connection_string)
-      connection_string = connection_string
+    def self.tcp(host, port)
+      "#{host}:#{port}"
+    end
+
+    attr_reader :options
+
+    def initialize(connection_string, options = {})
+      @options = options
       @tcp = false
       if connection_string =~ TCP_CONNECTION_MATCH
         @tcp = true
@@ -29,6 +35,9 @@ module FireAndForget
       else
         EventMachine::start_server(@socket, handler, &block)
         set_socket_permissions(@socket)
+        EM.add_shutdown_hook {
+          FileUtils.rm(@socket) if @socket and File.exist?(@socket)
+        }
       end
     end
 
@@ -63,7 +72,10 @@ module FireAndForget
     end
 
     def set_socket_permissions(socket)
-      File.chmod(0770, socket) if File.exist?(socket)
+      if File.exist?(socket)
+        File.chmod(0770, socket)
+        File.chown(nil, options[:gid], socket) if options[:gid]
+      end
     end
   end
 end

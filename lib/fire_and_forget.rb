@@ -4,6 +4,8 @@ require 'socket'
 
 module FireAndForget
   DEFAULT_CONNECTION = "/tmp/faf-server.sock"
+  DEFAULT_PORT = 9999
+  DEFAULT_HOST = 'localhost'
 
   ENV_CONNECTION = "__FAF_CONNECTION"
   ENV_DOMAIN = "__FAF_DOMAIN"

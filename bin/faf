@@ -5,45 +5,54 @@ $:.unshift(faf_path) if File.directory?(faf_path) && !$:.include?(faf_path)
 
 require 'optparse'
 require 'eventmachine'
-require 'ostruct'
 require 'etc'
+require 'fileutils'
 
 require 'fire_and_forget'
 
 
-options = OpenStruct.new
-options.connection = FireAndForget::DEFAULT_CONNECTION
-options.gid = Process.egid
+options = {}
+options[:gid] = Process.egid
 
+connection = FAF::DEFAULT_CONNECTION
+
+socket = port = host = nil
 
 OptionParser.new do |opts|
   opts.on("-d", "--debug", "Turn on debugging") {  $debug = true }
-  opts.on("-s", "--socket SOCKET", "Socket") { |v| options.socket = v }
-  opts.on("-p", "--port PORT", "Port") { |v| options.port = v }
-  opts.on("-h", "--host HOST", "Host") { |v| options.host = v }
+  opts.on("-s", "--socket SOCKET", "Socket") { |v| socket = v }
+  opts.on("-p", "--port PORT", "Port") { |v| port = v }
+  opts.on("-h", "--host HOST", "Host") { |v| host = v }
   opts.on("-g", "--socket-group GROUPNAME", "Socket owning group") { |v|
-    options.gid = nil; options.group_name = v }
+    options[:gid] = nil; options[:group_name] = v }
 end.parse!
 
 # raise ArgumentError, "You must specify a socket file using -s" unless options.socket
 
-unless options.gid
-  if options.group_name
-    options.gid = Etc.getgrnam(options.group_name).gid
+unless options[:gid]
+  if (group_name = options.delete(:group_name))
+    options[:gid] = Etc.getgrnam(group_name).gid
   end
 end
 
-# raise Errno::EADDRINUSE if File.exists?(options.socket) and File.socket?(options.socket)
-# server = UNIXServer.new(options.socket)
-# File.chown(nil, options.gid, options.socket)
-# make the socket group writable
-# File.chmod(0770, options.socket)
+if host or port
+  host ||= FAF::DEFAULT_HOST
+  port ||= FAF::DEFAULT_PORT
+  connection = FAF::Connection.tcp(host, port)
+else
+  connection = (socket ||= FAF::DEFAULT_CONNECTION)
+  raise Errno::EADDRINUSE if File.exists?(socket) and File.socket?(socket)
+end
 
-puts FAF.connection
 
-terminate = proc { EM.stop }
+
+terminate = proc {
+  EM.stop
+}
+
 %w(TERM INT).each { |signal| trap(signal, terminate) }
 
+puts "Fire & Forget server running on #{connection}"
 EventMachine.run do
-  FAF::Server.start
+  FAF::Server.start(connection, options)
 end

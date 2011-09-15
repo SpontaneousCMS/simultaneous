@@ -9,10 +9,11 @@ module FAF
       @channel ||= EM::Channel.new
     end
 
-    def self.start(connection_string = FAF.connection)
-      connection = FAF::Connection.new(connection_string)
-      connection.start_server(self)
+    def self.start(connection_string = FAF.connection, options = {})
+      connection = FAF::Connection.new(connection_string, options)
+      @server = connection.start_server(self)
     end
+
 
     def self.broadcast(data)
       channel << data

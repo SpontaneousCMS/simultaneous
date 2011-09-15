@@ -6,6 +6,9 @@ describe FireAndForget::Connection do
     # FileUtils.rm( "/tmp/socket.sock") if File.exist?( "/tmp/socket.sock")
   end
 
+  it "should allow me to generate a connection string from host & port values" do
+    FAF::Connection.tcp("localhost", 999).must_equal "localhost:999"
+  end
   it "should be correct recognise TCP connections" do
     %w(127.0.0.1:9999 localhost:1234 123.239.23.1:9999 host.domain.com:9999).each do |c|
       FAF::Connection.new(c).tcp?.must_be :==, true
@@ -74,12 +77,15 @@ describe FireAndForget::Connection do
 
   it "should set the correct permissions on the EventMachine server socket" do
     socket = "/tmp/socket.sock"
+    gid = "789"
     FileUtils.rm(socket) if File.exist?(socket)
     mock(File).chmod(0770, socket)
+    mock(File).chown(nil, gid, socket)
     handler = Module.new
     mock(EventMachine).start_server(socket, handler) { FileUtils.touch(socket) }
-    conn = FAF::Connection.new(socket)
+    conn = FAF::Connection.new(socket, {:gid => gid})
     conn.start_server(handler)
     FileUtils.rm(socket) if File.exist?(socket)
   end
+
 end
