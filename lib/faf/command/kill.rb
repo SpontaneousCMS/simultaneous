@@ -11,6 +11,9 @@ module FireAndForget
       def run
         FireAndForget::Server.kill(namespaced_task_name, @signal)
       end
+      def debug
+        "Kill :#{namespaced_task_name}: #{@signal}\n"
+      end
     end
   end
 end

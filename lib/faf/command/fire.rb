@@ -120,6 +120,7 @@ module FireAndForget
             STDOUT.reopen logfile_name, "a"
             File.chmod(0644, logfile_name)
             STDOUT.sync = true
+            STDOUT.fsync = true
           rescue ::Exception
             begin; STDOUT.reopen "/dev/null"; rescue ::Exception; end
           end

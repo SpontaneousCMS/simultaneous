@@ -47,12 +47,14 @@ end
 
 
 terminate = proc {
+  puts "Terminating..."
   EM.stop
 }
 
-%w(TERM INT).each { |signal| trap(signal, terminate) }
+%w(TERM INT QUIT).each { |signal| trap(signal, terminate) }
 
-puts "Fire & Forget server running on #{connection}"
+puts "Fire & Forget server PID #{$$} running on #{connection}"
+
 EventMachine.run do
   FAF::Server.start(connection, options)
 end

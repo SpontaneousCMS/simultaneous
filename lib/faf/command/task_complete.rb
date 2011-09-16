@@ -10,6 +10,9 @@ module FireAndForget
       def run
         FireAndForget::Server.task_complete(namespaced_task_name)
       end
+      def debug
+        "TaskComplete :#{namespaced_task_name}\n"
+      end
     end
   end
 end

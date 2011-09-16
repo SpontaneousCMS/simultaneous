@@ -11,6 +11,10 @@ class MyTask
 
   def run
     puts ARGV[0]
+    # 10.times do |i|
+    #   puts i
+    #   sleep(1)
+    # end
     faf_event("example", "done")
   end
 end

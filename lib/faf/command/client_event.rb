@@ -16,6 +16,9 @@ module FireAndForget
         })
         FAF::Server.broadcast(message.to_event)
       end
+      def debug
+        "ClientEvent: #{@domain}:#{@event} #{@data.inspect}\n"
+      end
     end
   end
 end

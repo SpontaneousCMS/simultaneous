@@ -23,11 +23,25 @@ module FAF
         def client=(client); @client = client end
         def client; @client end
 
+        def connection_completed
+          # $stdout.puts "Client connection completed\\n"
+        end
+
         def receive_line(line)
           client.receive(line)
         end
+
+        def unbind
+          $stdout.puts "Client Connection closed\n"
+          client.reconnect!
+        end
       end
       handler
+    end
+
+    def reconnect!
+      @socket = nil
+      connect
     end
 
     def close
@@ -46,7 +60,7 @@ module FAF
     end
 
     def connection(&callback)
-      callback.call(@socket)
+      callback.call(@socket) if @socket
     end
 
     def connect
