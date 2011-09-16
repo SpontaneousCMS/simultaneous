@@ -15,7 +15,7 @@ module FAF
     end
 
     def event=(event)
-      @event = event.to_sym
+      @event = event.to_s
     end
 
     def data=(data)

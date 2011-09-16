@@ -96,7 +96,7 @@ module FAF
     end
 
     def on_event(event, &block)
-      subscribers[event.to_sym] << block
+      subscribers[event.to_s] << block
     end
 
     def event_machine(&block)

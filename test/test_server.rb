@@ -167,7 +167,7 @@ describe FireAndForget::Server do
         proxy(c).run(is_a(FAF::Command::ClientEvent))
         client = FAF::Client.new("example2.com", SOCKET)
 
-        client.on_event(:publish_status) { |data|
+        client.on_event("publish_status") { |data|
           data.must_equal "completed"
           EM.stop
         }

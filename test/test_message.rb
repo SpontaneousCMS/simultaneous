@@ -18,7 +18,7 @@ describe FAF::BroadcastMessage do
 
     it "should recognise the event: header" do
       @message << "event: name"
-      @message.event.must_equal :name
+      @message.event.must_equal "name"
       @message.valid?.wont_be :==, true
     end
 
@@ -74,7 +74,7 @@ describe FAF::BroadcastMessage do
         :data => "line 1\nline 2"
       })
       message.domain.must_equal "domain"
-      message.event.must_equal :event
+      message.event.must_equal "event"
       message.data.must_equal "line 1\nline 2"
     end
   end
