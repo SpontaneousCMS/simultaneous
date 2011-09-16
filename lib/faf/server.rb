@@ -16,7 +16,6 @@ module FAF
 
 
     def self.broadcast(data)
-      p channel
       channel << data
     end
 

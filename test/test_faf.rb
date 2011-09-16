@@ -16,8 +16,10 @@ describe FireAndForget do
   end
 
   it "should enable setting of a niceness value for the task" do
-    FAF.add_task(:publish, "/path/to/binary", 10)
-    FAF[:publish].niceness.must_equal  10
+    FAF.add_task(:publish1, "/path/to/binary", {:niceness => 10})
+    FAF[:publish1].niceness.must_equal  10
+    FAF.add_task(:publish2, "/path/to/binary", {:nice => 12})
+    FAF[:publish2].niceness.must_equal  12
   end
 
 

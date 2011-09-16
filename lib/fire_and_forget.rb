@@ -24,6 +24,11 @@ module FireAndForget
     # @param [String] path_to_binary
     #   the path to the executable that should be run when this task is launched
     #
+    # @param [Hash] options
+    #   A hash of options for the task. Available options are:
+    #     :niceness: the niceness value of the process, >=0
+    #     :logfile:  the location of the processes log file to which all io will be redirected
+    #
     # @param [Fixnum] niceness
     #   the niceness value of the process >= 0. The higher this value the 'nicer' the launched
     #   process will be (a high nice value results in a low priority task).
@@ -40,8 +45,8 @@ module FireAndForget
     # @param [Hash] env
     #   A Hash of values to add to the task's ENV settings
     #
-    def add_task(task_name, path_to_binary, niceness=0, default_params={}, env={})
-      tasks[task_name] = TaskDescription.new(task_name, path_to_binary, niceness, default_params, env)
+    def add_task(task_name, path_to_binary, options={}, default_params={}, env={})
+      tasks[task_name] = TaskDescription.new(task_name, path_to_binary, options, default_params, env)
     end
 
     # Launches the given task

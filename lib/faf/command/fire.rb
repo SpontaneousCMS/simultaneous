@@ -1,5 +1,6 @@
 # encoding: UTF-8
 
+require 'fileutils'
 
 module FireAndForget
   module Command
@@ -56,7 +57,7 @@ module FireAndForget
             ## set up the environment so that the task can access the F&F server
             env.each { | k, v | ENV[k] = v }
             ## TODO: figure out how to pass a logfile path to this
-            daemonize(cmd, "/Users/garry/Dropbox/Development/spontaneous3/sockets/log/example.log")
+            daemonize(cmd, @task.logfile)
             Process.setpriority(Process::PRIO_PROCESS, 0, niceness) if niceness > 0
             ## change to the UID of the originating thread if necessary
             Process::UID.change_privilege(task_uid) unless Process.euid == task_uid
@@ -116,11 +117,11 @@ module FireAndForget
         begin; STDIN.reopen "/dev/null"; rescue ::Exception; end
 
         if logfile_name
+          FileUtils.mkdir_p(File.dirname(logfile_name))
           begin
             STDOUT.reopen logfile_name, "a"
             File.chmod(0644, logfile_name)
             STDOUT.sync = true
-            STDOUT.fsync = true
           rescue ::Exception
             begin; STDOUT.reopen "/dev/null"; rescue ::Exception; end
           end

@@ -2,10 +2,28 @@
 
 module FireAndForget
   class TaskDescription
-    attr_reader :name, :binary, :niceness, :params, :env
+    attr_reader :name, :binary, :options, :params, :env
 
-    def initialize(name, path_to_binary, niceness=0, default_parameters={}, env={})
-      @name, @binary, @params, @niceness, @env = name, path_to_binary, default_parameters, niceness, env
+    # options:
+    #   :nice
+    #   :logfile - defaults to PWD/log/task_name.log
+    #
+    #
+    # name, path_to_binary, options, default_parameters, env
+    def initialize(name, path_to_binary, options={}, default_parameters={}, env={})
+      @name, @binary, @params, @options, @env = name, path_to_binary, default_parameters, options, env
+    end
+
+    def niceness
+      (options[:nice] || options[:niceness] || 0)
+    end
+
+    def logfile
+      (options[:logfile] || options[:log] || default_log_file)
+    end
+
+    def default_log_file
+      File.expand_path(File.join(Dir.pwd, "log", "#{name}-task.log"))
     end
   end
 end

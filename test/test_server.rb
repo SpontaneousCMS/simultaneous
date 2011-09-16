@@ -84,7 +84,10 @@ describe FireAndForget::Server do
       args = {:param2 => "param2"}
       niceness = 10
       task_uid = 9999
-      task = FAF.add_task(:publish, "/path/to/binary", niceness, default_params, env)
+      options = {
+        :nice => niceness
+      }
+      task = FAF.add_task(:publish, "/path/to/binary", options, default_params, env)
       command = FAF::Command::Fire.new(task, args)
       dump = command.dump
       mock(command).dump { dump }
@@ -220,15 +223,20 @@ describe FireAndForget::Server do
     it "should divert STDOUT and STDERR to file and inform the server when finished" do
       FAF.domain = "example4.com"
       FAF.connection = SOCKET
+      logfile = "/tmp/log-#{$$}/#{$$}-example.log"
+      FileUtils.rm_f(logfile) if File.exists?(logfile)
       EM.run do
         FAF::Server.start(SOCKET)
-        task = FAF.add_task(:example, File.expand_path("../tasks/example.rb", __FILE__))
+        task = FAF.add_task(:example, File.expand_path("../tasks/example.rb", __FILE__), {:logfile => logfile})
         proxy(FAF::Server).run(is_a(FAF::Command::Fire))
         mock(FAF::Server).run(is_a(FAF::Command::SetPid))
         mock(FAF::Server).run(is_a(FAF::Command::ClientEvent))
         mock(FAF::Server).run(is_a(FAF::Command::TaskComplete)) { EM.stop }
         FAF.fire(:example, { "param" => "value" })
       end
+      assert(File.exist?(logfile), "Task should have output to #{logfile}")
+      File.read(logfile).must_equal %(--param=value\n)
+      FileUtils.rm_rf(File.dirname(logfile)) if File.exists?(logfile)
     end
   end
 end
