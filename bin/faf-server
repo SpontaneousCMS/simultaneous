@@ -23,11 +23,10 @@ OptionParser.new do |opts|
   opts.on("-s", "--socket SOCKET", "Socket") { |v| socket = v }
   opts.on("-p", "--port PORT", "Port") { |v| port = v }
   opts.on("-h", "--host HOST", "Host") { |v| host = v }
-  opts.on("-g", "--socket-group GROUPNAME", "Socket owning group") { |v|
+  opts.on("-g", "--group GROUPNAME", "Socket owning group") { |v|
     options[:gid] = nil; options[:group_name] = v }
 end.parse!
 
-# raise ArgumentError, "You must specify a socket file using -s" unless options.socket
 
 unless options[:gid]
   if (group_name = options.delete(:group_name))
@@ -44,8 +43,6 @@ else
   raise Errno::EADDRINUSE if File.exists?(socket) and File.socket?(socket)
 end
 
-
-
 terminate = proc {
   puts "Terminating..."
   EM.stop
@@ -53,8 +50,8 @@ terminate = proc {
 
 %w(TERM INT QUIT).each { |signal| trap(signal, terminate) }
 
-puts "Fire & Forget server PID #{$$} running on #{connection}"
+puts "Fire & Forget server PID #{$$} listening on #{connection}"
 
-EventMachine.run do
+EventMachine.run {
   FAF::Server.start(connection, options)
-end
+}
