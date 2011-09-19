@@ -4,10 +4,10 @@ require 'rubygems'
 
 $:.unshift(File.expand_path("../../../lib", __FILE__))
 
-require 'fire_and_forget'
+require 'simultaneous'
 
 class MyTask
-  include FAF::Task
+  include Simultaneous::Task
 
   def run
     puts ARGV[0]
@@ -15,7 +15,7 @@ class MyTask
     #   puts i
     #   sleep(1)
     # end
-    faf_event("example", "done")
+    simultaneous_event("example", "done")
   end
 end
 

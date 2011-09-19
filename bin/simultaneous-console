@@ -4,7 +4,7 @@ faf_path = File.expand_path('../../lib', __FILE__)
 $:.unshift(faf_path) if File.directory?(faf_path) && !$:.include?(faf_path)
 
 require 'eventmachine'
-require 'fire_and_forget'
+require 'simultaneous'
 
 module Console
   PROMPT = "\n>> ".freeze

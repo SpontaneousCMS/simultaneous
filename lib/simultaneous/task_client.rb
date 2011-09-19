@@ -2,13 +2,13 @@
 
 require 'socket'
 
-module FireAndForget
+module Simultaneous
   class TaskClient
     attr_reader :domain
 
-    def initialize(domain = FAF.domain, connection_string=FAF.connection)
+    def initialize(domain = Simultaneous.domain, connection_string=Simultaneous.connection)
       @domain = domain
-      @connection = FAF::Connection.new(connection_string)
+      @connection = Simultaneous::Connection.new(connection_string)
     end
 
     def run(command)

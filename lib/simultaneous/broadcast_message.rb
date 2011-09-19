@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-module FAF
+module Simultaneous
   class BroadcastMessage
     attr_accessor :domain
     attr_reader :event

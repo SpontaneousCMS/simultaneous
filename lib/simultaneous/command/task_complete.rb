@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-module FireAndForget
+module Simultaneous
   module Command
     class TaskComplete < CommandBase
       def initialize(task_name)
@@ -8,7 +8,7 @@ module FireAndForget
       end
 
       def run
-        FireAndForget::Server.task_complete(namespaced_task_name)
+        Simultaneous::Server.task_complete(namespaced_task_name)
       end
       def debug
         "TaskComplete :#{namespaced_task_name}\n"

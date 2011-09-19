@@ -2,14 +2,16 @@
 
 require 'socket'
 
-module FireAndForget
-  DEFAULT_CONNECTION = "/tmp/faf-server.sock"
+module Simultaneous
+  VERSION = "0.1.0"
+
+  DEFAULT_CONNECTION = "/tmp/simultaneous-server.sock"
   DEFAULT_PORT = 9999
   DEFAULT_HOST = 'localhost'
 
-  ENV_CONNECTION = "__FAF_CONNECTION"
-  ENV_DOMAIN = "__FAF_DOMAIN"
-  ENV_TASK_NAME = "__FAF_TASK_NAME"
+  ENV_CONNECTION = "__Simultaneous_CONNECTION"
+  ENV_DOMAIN = "__Simultaneous_DOMAIN"
+  ENV_TASK_NAME = "__Simultaneous_TASK_NAME"
 
   class Error < ::StandardError; end
   class PermissionsError < Error; end
@@ -40,7 +42,7 @@ module FireAndForget
     #     { "setting" => "value", "output" => "destination"}
     #   gives the parameters
     #     --setting=value --output=destination
-    #   @see FireAndForget::Utilities#to_arguments
+    #   @see Simultaneous::Utilities#to_arguments
     #
     # @param [Hash] env
     #   A Hash of values to add to the task's ENV settings
@@ -116,14 +118,14 @@ module FireAndForget
     end
 
     def connection
-      @connection ||= (ENV[FAF::ENV_CONNECTION] || FAF::DEFAULT_CONNECTION)
+      @connection ||= (ENV[Simultaneous::ENV_CONNECTION] || Simultaneous::DEFAULT_CONNECTION)
     end
 
     def domain
-      @domain ||= (ENV[FAF::ENV_DOMAIN] || "domain#{$$}")
+      @domain ||= (ENV[Simultaneous::ENV_DOMAIN] || "domain#{$$}")
     end
 
-    # Used by the {FireAndForget::Daemon} module to set the correct PID for a given task
+    # Used by the {Simultaneous::Daemon} module to set the correct PID for a given task
     def map_pid(task_name, pid)
       command = Command::SetPid.new(task_name, pid)
       client.run(command)
@@ -214,9 +216,9 @@ module FireAndForget
 
     # Catch method missing to enable launching of tasks by direct name
     # e.g.
-    #   FireAndForget.add_task(:process_things, "/usr/bin/process")
+    #   Simultaneous.add_task(:process_things, "/usr/bin/process")
     # launch this task:
-    #   FireAndForget.process_things
+    #   Simultaneous.process_things
     #
     def method_missing(method, *args, &block)
       if tasks.key?(method)
@@ -229,14 +231,12 @@ module FireAndForget
 
   extend ClassMethods
 
-  autoload :Connection,       "faf/connection"
-  autoload :Server,           "faf/server"
-  autoload :Client,           "faf/client"
-  autoload :TaskClient,       "faf/task_client"
-  autoload :Task,             "faf/task"
-  autoload :TaskDescription,  "faf/task_description"
-  autoload :BroadcastMessage, "faf/broadcast_message"
-  autoload :Command,          "faf/command"
+  autoload :Connection,       "simultaneous/connection"
+  autoload :Server,           "simultaneous/server"
+  autoload :Client,           "simultaneous/client"
+  autoload :TaskClient,       "simultaneous/task_client"
+  autoload :Task,             "simultaneous/task"
+  autoload :TaskDescription,  "simultaneous/task_description"
+  autoload :BroadcastMessage, "simultaneous/broadcast_message"
+  autoload :Command,          "simultaneous/command"
 end
-
-FAF = FireAndForget

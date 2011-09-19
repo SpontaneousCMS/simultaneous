@@ -1,22 +1,22 @@
 require File.expand_path('../helper', __FILE__)
 
-describe FireAndForget::Client do
+describe Simultaneous::Client do
   it "should send right command to server" do
     EM.run {
-      task = FAF.add_task(:publish, "/publish", {:param1 => "value1", :param2 => "value2"}, 12)
+      task = Simultaneous.add_task(:publish, "/publish", {:param1 => "value1", :param2 => "value2"}, 12)
       command = Object.new
       mock(command).domain=("faf.org")
       mock(command).dump { "dumpedcommand" }
-      mock(FAF::Command::Fire).new(task, {:param2 => "value3"}) { command }
+      mock(Simultaneous::Command::Fire).new(task, {:param2 => "value3"}) { command }
 
-      FAF.domain = "faf.org"
-      FAF.connection = SOCKET
-      FAF::Server.start
+      Simultaneous.domain = "faf.org"
+      Simultaneous.connection = SOCKET
+      Simultaneous::Server.start
 
-      mock(FAF::Server).receive_data("dumpedcommand") { EM.stop }
+      mock(Simultaneous::Server).receive_data("dumpedcommand") { EM.stop }
 
       Thread.new {
-        pid = FAF.publish({:param2 => "value3"})
+        pid = Simultaneous.publish({:param2 => "value3"})
       }.join
     }
   end

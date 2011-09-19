@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-module FireAndForget
+module Simultaneous
   class Connection
     TCP_CONNECTION_MATCH = %r{^([^/]+):(\d+)}
 

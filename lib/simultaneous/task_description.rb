@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-module FireAndForget
+module Simultaneous
   class TaskDescription
     attr_reader :name, :binary, :options, :params, :env
 

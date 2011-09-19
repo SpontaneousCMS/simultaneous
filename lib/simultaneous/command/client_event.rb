@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-module FireAndForget
+module Simultaneous
   module Command
     class ClientEvent < CommandBase
 
@@ -9,12 +9,12 @@ module FireAndForget
       end
 
       def run
-        message = FAF::BroadcastMessage.new({
+        message = Simultaneous::BroadcastMessage.new({
           :domain => @domain,
           :event => @event,
           :data => @data
         })
-        FAF::Server.broadcast(message.to_event)
+        Simultaneous::Server.broadcast(message.to_event)
       end
       def debug
         "ClientEvent: #{@domain}:#{@event} #{@data.inspect}\n"

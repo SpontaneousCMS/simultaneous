@@ -1,8 +1,8 @@
-module FireAndForget
+module Simultaneous
   module Task
 
     def self.task_name
-      ENV[FireAndForget::ENV_TASK_NAME]
+      ENV[Simultaneous::ENV_TASK_NAME]
     end
 
     def self.pid
@@ -10,16 +10,16 @@ module FireAndForget
     end
 
     def self.included(klass)
-      FAF.client = FAF::TaskClient.new
-      FireAndForget.set_pid(self.task_name, pid) if task_name
+      Simultaneous.client = Simultaneous::TaskClient.new
+      Simultaneous.set_pid(self.task_name, pid) if task_name
       at_exit {
         begin
-          FireAndForget.task_complete(self.task_name)
+          Simultaneous.task_complete(self.task_name)
         rescue Errno::ECONNREFUSED
         rescue Errno::ENOENT
         end
 
-      # FireAndForget.client.close
+      # Simultaneous.client.close
       }
     rescue Errno::ECONNREFUSED
     rescue Errno::ENOENT
@@ -27,8 +27,8 @@ module FireAndForget
     end
 
 
-    def faf_event(event, message)
-      FireAndForget.send_event(event, message)
+    def simultaneous_event(event, message)
+      Simultaneous.send_event(event, message)
     rescue Errno::ECONNREFUSED
     rescue Errno::ENOENT
       # server isn't running but we don't want this to stop our script

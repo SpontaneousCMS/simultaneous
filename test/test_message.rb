@@ -1,10 +1,10 @@
 require File.expand_path('../helper', __FILE__)
 
-describe FAF::BroadcastMessage do
+describe Simultaneous::BroadcastMessage do
 
   describe "when parsing input" do
     before do
-      @message = FAF::BroadcastMessage.new
+      @message = Simultaneous::BroadcastMessage.new
     end
     it "should begin as invalid" do
       @message.valid?.wont_be :==, true
@@ -45,7 +45,7 @@ describe FAF::BroadcastMessage do
 
   describe "when data has been parsed" do
     before do
-      @message = FAF::BroadcastMessage.new
+      @message = Simultaneous::BroadcastMessage.new
       @message.event = "event"
       @message.domain = "domain"
       @message.data = "line 1\nline 2"
@@ -68,7 +68,7 @@ describe FAF::BroadcastMessage do
 
   describe "when initialising" do
     it "should accept values at initialisation" do
-      message = FAF::BroadcastMessage.new({
+      message = Simultaneous::BroadcastMessage.new({
         :domain => "domain",
         :event => "event",
         :data => "line 1\nline 2"

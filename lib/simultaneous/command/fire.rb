@@ -2,7 +2,7 @@
 
 require 'fileutils'
 
-module FireAndForget
+module Simultaneous
   module Command
     class Fire < CommandBase
       attr_reader :task_uid, :task_gid
@@ -26,7 +26,7 @@ module FireAndForget
       end
 
       def cmd
-        %(#{binary} #{FireAndForget.to_arguments(@params)})
+        %(#{binary} #{Simultaneous.to_arguments(@params)})
       end
 
       def valid?
@@ -45,9 +45,9 @@ module FireAndForget
 
       def env
         @task.env.merge({
-          FireAndForget::ENV_CONNECTION => FireAndForget.connection,
-          FireAndForget::ENV_TASK_NAME => task_name,
-          FireAndForget::ENV_DOMAIN => domain
+          Simultaneous::ENV_CONNECTION => Simultaneous.connection,
+          Simultaneous::ENV_TASK_NAME => task_name,
+          Simultaneous::ENV_DOMAIN => domain
         })
       end
 

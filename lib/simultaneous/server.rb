@@ -2,15 +2,15 @@
 
 require 'eventmachine'
 
-module FAF
+module Simultaneous
   class Server < EM::Connection
 
     def self.channel
       @channel ||= EM::Channel.new
     end
 
-    def self.start(connection_string = FAF.connection, options = {})
-      connection = FAF::Connection.new(connection_string, options)
+    def self.start(connection_string = Simultaneous.connection, options = {})
+      connection = Simultaneous::Connection.new(connection_string, options)
       @server = connection.start_server(self)
     end
 
@@ -20,7 +20,7 @@ module FAF
     end
 
     def self.receive_data(data)
-      command = FAF::Command.load(data)
+      command = Simultaneous::Command.load(data)
       run(command)
     end
 
@@ -55,7 +55,7 @@ module FAF
     end
 
     def channel
-      FAF::Server.channel
+      Simultaneous::Server.channel
     end
 
     def post_init
@@ -63,7 +63,7 @@ module FAF
     end
 
     def receive_data(data)
-      FAF::Server.receive_data(data)
+      Simultaneous::Server.receive_data(data)
     end
 
     def unbind

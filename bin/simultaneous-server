@@ -8,13 +8,13 @@ require 'eventmachine'
 require 'etc'
 require 'fileutils'
 
-require 'fire_and_forget'
+require 'simultaneous'
 
 
 options = {}
 options[:gid] = Process.egid
 
-connection = FAF::DEFAULT_CONNECTION
+connection = Simultaneous::DEFAULT_CONNECTION
 
 socket = port = host = nil
 
@@ -35,11 +35,11 @@ unless options[:gid]
 end
 
 if host or port
-  host ||= FAF::DEFAULT_HOST
-  port ||= FAF::DEFAULT_PORT
-  connection = FAF::Connection.tcp(host, port)
+  host ||= Simultaneous::DEFAULT_HOST
+  port ||= Simultaneous::DEFAULT_PORT
+  connection = Simultaneous::Connection.tcp(host, port)
 else
-  connection = (socket ||= FAF::DEFAULT_CONNECTION)
+  connection = (socket ||= Simultaneous::DEFAULT_CONNECTION)
   raise Errno::EADDRINUSE if File.exists?(socket) and File.socket?(socket)
 end
 
@@ -53,5 +53,5 @@ terminate = proc {
 puts "Fire & Forget server PID #{$$} listening on #{connection}"
 
 EventMachine.run {
-  FAF::Server.start(connection, options)
+  Simultaneous::Server.start(connection, options)
 }

@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-module FireAndForget
+module Simultaneous
   module Command
     class Kill < CommandBase
 
@@ -9,7 +9,7 @@ module FireAndForget
       end
 
       def run
-        FireAndForget::Server.kill(namespaced_task_name, @signal)
+        Simultaneous::Server.kill(namespaced_task_name, @signal)
       end
       def debug
         "Kill :#{namespaced_task_name}: #{@signal}\n"

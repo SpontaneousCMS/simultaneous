@@ -1,8 +1,8 @@
 require File.expand_path('../helper', __FILE__)
 
-describe FireAndForget::Server do
+describe Simultaneous::Server do
   before do
-    FAF.reset!
+    Simultaneous.reset!
   end
 
   after do
@@ -16,13 +16,13 @@ describe FireAndForget::Server do
       result4 = result5 = result6 = nil
 
       EM.run {
-        FAF::Server.start(SOCKET)
+        Simultaneous::Server.start(SOCKET)
 
-        client1 = FAF::Client.new("domain1", SOCKET)
-        client2 = FAF::Client.new("domain1", SOCKET)
-        client3 = FAF::Client.new("domain2", SOCKET)
+        client1 = Simultaneous::Client.new("domain1", SOCKET)
+        client2 = Simultaneous::Client.new("domain1", SOCKET)
+        client3 = Simultaneous::Client.new("domain2", SOCKET)
 
-        command = FAF::Command::ClientEvent.new("domain1", "a", "data")
+        command = Simultaneous::Command::ClientEvent.new("domain1", "a", "data")
 
         client1.on_event(:a) { |data| result1 = [:a, data] }
         client2.on_event(:a) { |data| result2 = [:a, data] }
@@ -68,7 +68,7 @@ describe FireAndForget::Server do
         end
 
         Thread.new {
-          FAF::Server.run(command)
+          Simultaneous::Server.run(command)
         }.join
       }
     end
@@ -76,8 +76,8 @@ describe FireAndForget::Server do
 
   describe "Task" do
     it "should make it intact from client to process" do
-      FAF.domain = "example.org"
-      FAF.connection = SOCKET
+      Simultaneous.domain = "example.org"
+      Simultaneous.connection = SOCKET
 
       default_params = { :param1 => "param1" }
       env = { "ENV_PARAM" => "envparam" }
@@ -87,17 +87,17 @@ describe FireAndForget::Server do
       options = {
         :nice => niceness
       }
-      task = FAF.add_task(:publish, "/path/to/binary", options, default_params, env)
-      command = FAF::Command::Fire.new(task, args)
+      task = Simultaneous.add_task(:publish, "/path/to/binary", options, default_params, env)
+      command = Simultaneous::Command::Fire.new(task, args)
       dump = command.dump
       mock(command).dump { dump }
-      mock(FAF::Command::Fire).new(task, args) { command }
-      mock(FAF::Command).load(is_a(String)) { command }
+      mock(Simultaneous::Command::Fire).new(task, args) { command }
+      mock(Simultaneous::Command).load(is_a(String)) { command }
       mock(command).valid? { true }
       mock(command).task_uid.twice { task_uid }
 
       EM.run do
-        FAF::Server.start(SOCKET)
+        Simultaneous::Server.start(SOCKET)
 
         mock(Process).detach(9999)
 
@@ -110,15 +110,15 @@ describe FireAndForget::Server do
           block.call
 
           ENV["ENV_PARAM"].must_equal "envparam"
-          ENV[FAF::ENV_DOMAIN].must_equal "example.org"
-          ENV[FAF::ENV_TASK_NAME].must_equal "publish"
-          ENV[FAF::ENV_CONNECTION].must_equal SOCKET
+          ENV[Simultaneous::ENV_DOMAIN].must_equal "example.org"
+          ENV[Simultaneous::ENV_TASK_NAME].must_equal "publish"
+          ENV[Simultaneous::ENV_CONNECTION].must_equal SOCKET
           EM.stop
           9999
         end
 
         Thread.new do
-          FAF.fire(:publish, args)
+          Simultaneous.fire(:publish, args)
         end.join
       end
     end
@@ -126,46 +126,46 @@ describe FireAndForget::Server do
     it "should report back to the server to set the task PID" do
       pids = {}
       pid = 99999
-      FAF.domain = "example.com"
-      FAF.connection = SOCKET
+      Simultaneous.domain = "example.com"
+      Simultaneous.connection = SOCKET
 
 
       EM.run do
-        FAF::Server.start(SOCKET)
+        Simultaneous::Server.start(SOCKET)
 
-        ENV[FAF::ENV_DOMAIN] = "example.com"
-        ENV[FAF::ENV_TASK_NAME] = "publish"
-        ENV[FAF::ENV_CONNECTION] = SOCKET
+        ENV[Simultaneous::ENV_DOMAIN] = "example.com"
+        ENV[Simultaneous::ENV_TASK_NAME] = "publish"
+        ENV[Simultaneous::ENV_CONNECTION] = SOCKET
 
-        mock(FAF::Task).pid { pid }
-        mock(FireAndForget::Server).pids { pids }
+        mock(Simultaneous::Task).pid { pid }
+        mock(Simultaneous::Server).pids { pids }
         mock(pids).[]=("example.com/publish", pid) { EM.stop }
 
         Thread.new do
-          class FAFTask
-            include FAF::Task
+          class SimultaneousTask
+            include Simultaneous::Task
           end
         end.join
       end
     end
 
     it "should be able to trigger messages on the client" do
-      FAF.domain = "example2.com"
-      FAF.connection = SOCKET
+      Simultaneous.domain = "example2.com"
+      Simultaneous.connection = SOCKET
 
 
       EM.run do
-        FAF::Server.start(SOCKET)
+        Simultaneous::Server.start(SOCKET)
 
-        ENV[FAF::ENV_DOMAIN] = "example2.com"
-        ENV[FAF::ENV_TASK_NAME] = "publish"
-        ENV[FAF::ENV_CONNECTION] = SOCKET
+        ENV[Simultaneous::ENV_DOMAIN] = "example2.com"
+        ENV[Simultaneous::ENV_TASK_NAME] = "publish"
+        ENV[Simultaneous::ENV_CONNECTION] = SOCKET
 
-        c = FAF::TaskClient.new("example2.com", SOCKET)
-        mock(FAF::TaskClient).new { c }
-        mock(c).run(is_a(FAF::Command::SetPid))
-        proxy(c).run(is_a(FAF::Command::ClientEvent))
-        client = FAF::Client.new("example2.com", SOCKET)
+        c = Simultaneous::TaskClient.new("example2.com", SOCKET)
+        mock(Simultaneous::TaskClient).new { c }
+        mock(c).run(is_a(Simultaneous::Command::SetPid))
+        proxy(c).run(is_a(Simultaneous::Command::ClientEvent))
+        client = Simultaneous::Client.new("example2.com", SOCKET)
 
         client.on_event("publish_status") { |data|
           data.must_equal "completed"
@@ -173,13 +173,13 @@ describe FireAndForget::Server do
         }
 
         Thread.new do
-          class FAFTask
-            include FAF::Task
+          class SimultaneousTask
+            include Simultaneous::Task
             def run
-              faf_event("publish_status", "completed")
+              simultaneous_event("publish_status", "completed")
             end
           end
-          FAFTask.new.run
+          SimultaneousTask.new.run
         end.join
 
       end
@@ -188,51 +188,51 @@ describe FireAndForget::Server do
     it "should be able to kill task processes" do
       pid = 99999
       pids = {"example3.com/publish" => pid}
-      FAF.domain = "example3.com"
-      FAF.connection = SOCKET
+      Simultaneous.domain = "example3.com"
+      Simultaneous.connection = SOCKET
 
 
       EM.run do
-        FAF::Server.start(SOCKET)
+        Simultaneous::Server.start(SOCKET)
 
-        ENV[FAF::ENV_DOMAIN] = "example3.com"
-        ENV[FAF::ENV_TASK_NAME] = "publish"
-        ENV[FAF::ENV_CONNECTION] = SOCKET
+        ENV[Simultaneous::ENV_DOMAIN] = "example3.com"
+        ENV[Simultaneous::ENV_TASK_NAME] = "publish"
+        ENV[Simultaneous::ENV_CONNECTION] = SOCKET
 
-        c = FAF::TaskClient.new("example3.com", SOCKET)
-        mock(FAF::TaskClient).new { c }
-        mock(c).run(is_a(FAF::Command::SetPid))
-        proxy(c).run(is_a(FAF::Command::Kill))
+        c = Simultaneous::TaskClient.new("example3.com", SOCKET)
+        mock(Simultaneous::TaskClient).new { c }
+        mock(c).run(is_a(Simultaneous::Command::SetPid))
+        proxy(c).run(is_a(Simultaneous::Command::Kill))
 
-        mock(FAF::Task).pid { pid }
-        mock(FireAndForget::Server).pids { pids }
+        mock(Simultaneous::Task).pid { pid }
+        mock(Simultaneous::Server).pids { pids }
 
         Thread.new do
-          class FAFTask
-            include FAF::Task
+          class SimultaneousTask
+            include Simultaneous::Task
           end
         end.join
 
         Thread.new do
           mock(Process).kill("TERM", pid) { EM.stop }
-          FAF.kill(:publish)
+          Simultaneous.kill(:publish)
         end.join
       end
     end
 
     it "should divert STDOUT and STDERR to file and inform the server when finished" do
-      FAF.domain = "example4.com"
-      FAF.connection = SOCKET
+      Simultaneous.domain = "example4.com"
+      Simultaneous.connection = SOCKET
       logfile = "/tmp/log-#{$$}/#{$$}-example.log"
       FileUtils.rm_f(logfile) if File.exists?(logfile)
       EM.run do
-        FAF::Server.start(SOCKET)
-        task = FAF.add_task(:example, File.expand_path("../tasks/example.rb", __FILE__), {:logfile => logfile})
-        proxy(FAF::Server).run(is_a(FAF::Command::Fire))
-        mock(FAF::Server).run(is_a(FAF::Command::SetPid))
-        mock(FAF::Server).run(is_a(FAF::Command::ClientEvent))
-        mock(FAF::Server).run(is_a(FAF::Command::TaskComplete)) { EM.stop }
-        FAF.fire(:example, { "param" => "value" })
+        Simultaneous::Server.start(SOCKET)
+        task = Simultaneous.add_task(:example, File.expand_path("../tasks/example.rb", __FILE__), {:logfile => logfile})
+        proxy(Simultaneous::Server).run(is_a(Simultaneous::Command::Fire))
+        mock(Simultaneous::Server).run(is_a(Simultaneous::Command::SetPid))
+        mock(Simultaneous::Server).run(is_a(Simultaneous::Command::ClientEvent))
+        mock(Simultaneous::Server).run(is_a(Simultaneous::Command::TaskComplete)) { EM.stop }
+        Simultaneous.fire(:example, { "param" => "value" })
       end
       assert(File.exist?(logfile), "Task should have output to #{logfile}")
       File.read(logfile).must_equal %(--param=value\n)

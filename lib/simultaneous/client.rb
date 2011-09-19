@@ -2,14 +2,14 @@
 
 require 'eventmachine'
 
-module FAF
+module Simultaneous
   class Client
 
 
     attr_reader :domain
 
     def initialize(domain, connection_string, &block)
-      @connection = FAF::Connection.new(connection_string)
+      @connection = Simultaneous::Connection.new(connection_string)
       @domain = domain
       @callbacks = []
       @socket = nil
@@ -65,7 +65,7 @@ module FAF
 
     def connect
       event_machine do
-        # EventMachine.connect(*FAF.parse_connection(@connection_string), handler) do |conn|
+        # EventMachine.connect(*Simultaneous.parse_connection(@connection_string), handler) do |conn|
         @connection.async_socket(handler) do |conn|
           conn.client = self
           @socket = conn
@@ -77,7 +77,7 @@ module FAF
       if data == ""
         notify! if @message
       else
-        @message ||= FAF::BroadcastMessage.new
+        @message ||= Simultaneous::BroadcastMessage.new
         @message << data
       end
     end

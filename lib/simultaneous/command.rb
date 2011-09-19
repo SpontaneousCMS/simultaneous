@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-module FireAndForget
+module Simultaneous
   module Command
     SEPARATOR = "||".freeze
 
@@ -66,10 +66,10 @@ module FireAndForget
     end
 
 
-    autoload :Fire,         "faf/command/fire"
-    autoload :Kill,         "faf/command/kill"
-    autoload :SetPid,       "faf/command/set_pid"
-    autoload :ClientEvent,  "faf/command/client_event"
-    autoload :TaskComplete, "faf/command/task_complete"
+    autoload :Fire,         "simultaneous/command/fire"
+    autoload :Kill,         "simultaneous/command/kill"
+    autoload :SetPid,       "simultaneous/command/set_pid"
+    autoload :ClientEvent,  "simultaneous/command/client_event"
+    autoload :TaskComplete, "simultaneous/command/task_complete"
   end
 end

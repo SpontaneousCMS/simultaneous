@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-module FireAndForget
+module Simultaneous
   module Command
     class SetPid < CommandBase
 
@@ -11,7 +11,7 @@ module FireAndForget
       end
 
       def run
-        FireAndForget::Server.pids[namespaced_task_name] = @pid
+        Simultaneous::Server.pids[namespaced_task_name] = @pid
       end
 
       def debug
