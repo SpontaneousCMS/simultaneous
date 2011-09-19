@@ -5,7 +5,7 @@ require 'rack/async'
 module Simultaneous
   module Rack
     # A Rack handler that allows you to create a HTML5 Server-Sent Events
-    # endpoint built using EventMachine in order to easily handle multiple
+    # endpoint. Relies on EventMachine to easily handle multiple
     # open connections simultaneously
     #
     # To use, first create an instance of the EventSource class:
