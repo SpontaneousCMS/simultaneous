@@ -239,4 +239,5 @@ module Simultaneous
   autoload :TaskDescription,  "simultaneous/task_description"
   autoload :BroadcastMessage, "simultaneous/broadcast_message"
   autoload :Command,          "simultaneous/command"
+  autoload :Rack,             "simultaneous/rack"
 end
