@@ -24,12 +24,12 @@ describe Simultaneous::Server do
 
         command = Simultaneous::Command::ClientEvent.new("domain1", "a", "data")
 
-        client1.on_event(:a) { |data| result1 = [:a, data] }
-        client2.on_event(:a) { |data| result2 = [:a, data] }
-        client3.on_event(:a) { |data| result3 = [:a, data] }
-        client1.on_event(:b) { |data| result4 = [:b, data] }
-        client2.on_event(:b) { |data| result5 = [:b, data] }
-        client3.on_event(:b) { |data| result6 = [:b, data] }
+        client1.on_event(:a) { |event| result1 = [:a, event.data] }
+        client2.on_event(:a) { |event| result2 = [:a, event.data] }
+        client3.on_event(:a) { |event| result3 = [:a, event.data] }
+        client1.on_event(:b) { |event| result4 = [:b, event.data] }
+        client2.on_event(:b) { |event| result5 = [:b, event.data] }
+        client3.on_event(:b) { |event| result6 = [:b, event.data] }
 
         $receive_count = 0
 
@@ -167,8 +167,8 @@ describe Simultaneous::Server do
         proxy(c).run(is_a(Simultaneous::Command::ClientEvent))
         client = Simultaneous::Client.new("example2.com", SOCKET)
 
-        client.on_event("publish_status") { |data|
-          data.must_equal "completed"
+        client.on_event("publish_status") { |event|
+          event.data.must_equal "completed"
           EM.stop
         }
 

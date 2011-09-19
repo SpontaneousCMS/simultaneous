@@ -85,7 +85,7 @@ module Simultaneous
     def notify!
       if @message.valid? and @message.domain == @domain
         subscribers[@message.event].each do |subscriber|
-          subscriber.call(@message.data)
+          subscriber.call(@message)
         end
       end
       @message = nil

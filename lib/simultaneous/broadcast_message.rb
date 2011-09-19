@@ -52,5 +52,12 @@ module Simultaneous
       lines.push("\n")
       lines.join("\n")
     end
+
+    def to_sse
+      lines = ["event: #{event}"]
+      lines.concat(@data.map { |l| "data: #{l}" })
+      lines.push("\n")
+      lines.join("\n")
+    end
   end
 end

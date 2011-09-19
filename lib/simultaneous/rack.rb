@@ -61,19 +61,24 @@ module Simultaneous
         [200, {"Content-type" => "text/event-stream"}, stream]
       end
 
-      def deliver(message)
-        data = "data: #{message}\n\n"
-        @clients.each do |client|
-          client << data
-        end
-        puts "#{Time.now}: Message #{message.inspect}; Clients: #{@clients.length}"
+      def deliver_event(event)
+        send(event.to_sse)
+      end
+
+      def deliver(data)
+        send("data: #{data}\n\n")
       end
 
       private
 
-      def cleanup!(connection)
-        @lock.synchronize { @clients.delete(connection) }
+      def send(message)
+        @clients.each { |client| client << message }
+        # puts "#{Time.now}: Message #{message.inspect}; Clients: #{@clients.length}"
+      end
+
+        def cleanup!(connection)
+          @lock.synchronize { @clients.delete(connection) }
+        end
       end
     end
   end
-end
