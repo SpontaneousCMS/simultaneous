@@ -50,7 +50,7 @@ terminate = proc {
 
 %w(TERM INT QUIT).each { |signal| trap(signal, terminate) }
 
-puts "Fire & Forget server PID #{$$} listening on #{connection}"
+puts "Simultaneous server PID:#{$$} listening on #{connection}"
 
 EventMachine.run {
   Simultaneous::Server.start(connection, options)
