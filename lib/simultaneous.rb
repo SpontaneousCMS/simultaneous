@@ -1,23 +1,29 @@
 # encoding: UTF-8
 
 require 'socket'
+require 'eventmachine'
 
 module Simultaneous
-  VERSION = "0.1.0"
+  VERSION = "0.2.0"
 
   DEFAULT_CONNECTION = "/tmp/simultaneous-server.sock"
   DEFAULT_PORT = 9999
   DEFAULT_HOST = 'localhost'
 
-  ENV_CONNECTION = "__Simultaneous_CONNECTION"
-  ENV_DOMAIN = "__Simultaneous_DOMAIN"
-  ENV_TASK_NAME = "__Simultaneous_TASK_NAME"
+  ENV_CONNECTION = "SIMULTANEOUS_CONNECTION"
+  ENV_DOMAIN = "SIMULTANEOUS_DOMAIN"
+  ENV_TASK_NAME = "SIMULTANEOUS_TASK_NAME"
 
   class Error < ::StandardError; end
   class PermissionsError < Error; end
   class FileNotFoundError < Error; end
 
   module ClassMethods
+
+    def server_binary
+      File.expand_path("../../bin/simultaneous-server", __FILE__)
+    end
+
     # Registers a task and makes it available for easy launching using #fire
     #
     # @param [Symbol] task_name
@@ -30,6 +36,7 @@ module Simultaneous
     #   A hash of options for the task. Available options are:
     #     :niceness: the niceness value of the process, >=0
     #     :logfile:  the location of the processes log file to which all io will be redirected
+    #     :pwd:      directory that the task should work in
     #
     # @param [Fixnum] niceness
     #   the niceness value of the process >= 0. The higher this value the 'nicer' the launched
@@ -67,16 +74,31 @@ module Simultaneous
     end
 
     def client
-      @client ||= if EM.reactor_running?
-                    Client.new(domain, connection)
-                  else
-                    TaskClient.new(domain, connection)
-                  end
+      @client ||= \
+        begin
+          client = \
+            if ::EM.reactor_running?
+              Client.new(domain, connection)
+            else
+              TaskClient.new(domain, connection)
+            end
+          # make sure that new client is hooked into all listeners
+          event_listeners.each do |event, blocks|
+            blocks.each do |block|
+              client.on_event(event, &block)
+            end
+          end
+          client
+        end
     end
 
+    def event_listeners
+      @event_listeners ||= Hash.new { |hash, key| hash[key] = [] }
+    end
 
     def on_event(event, &block)
-      client.on_event(event, &block)
+      event_listeners[event] << block
+      client.on_event(event, &block) if client
     end
 
     def reset_client!

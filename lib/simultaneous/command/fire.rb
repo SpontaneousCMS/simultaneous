@@ -62,6 +62,7 @@ module Simultaneous
             ## change to the UID of the originating thread if necessary
             Process::UID.change_privilege(task_uid) unless Process.euid == task_uid
             File.umask(0022)
+            Dir.chdir(@task.pwd)
             exec(cmd)
           end
           Process.detach(pid) if pid

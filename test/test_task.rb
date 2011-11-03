@@ -14,4 +14,8 @@ describe Simultaneous::TaskDescription do
     task = Simultaneous::TaskDescription.new(:fish, "/path/to/fish", {:log => "/var/log/fish.log"})
     task.logfile.must_equal "/var/log/fish.log"
   end
+
+  it "should set the right pwd" do
+    flunk
+  end
 end

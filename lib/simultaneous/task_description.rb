@@ -22,8 +22,16 @@ module Simultaneous
       (options[:logfile] || options[:log] || default_log_file)
     end
 
+    def pwd
+      (options[:pwd] || default_pwd)
+    end
+
     def default_log_file
       File.expand_path(File.join(Dir.pwd, "log", "#{name}-task.log"))
+    end
+
+    def default_pwd
+      "/"
     end
   end
 end

@@ -10,6 +10,7 @@ module Simultaneous
     end
 
     def self.start(connection_string = Simultaneous.connection, options = {})
+      Simultaneous.connection = connection_string
       connection = Simultaneous::Connection.new(connection_string, options)
       @server = connection.start_server(self)
     end

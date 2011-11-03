@@ -14,13 +14,14 @@ require 'simultaneous'
 options = {}
 options[:gid] = Process.egid
 
-connection = Simultaneous::DEFAULT_CONNECTION
+connection = nil
 
 socket = port = host = nil
 
 OptionParser.new do |opts|
   opts.on("-d", "--debug", "Turn on debugging") {  $debug = true }
   opts.on("-s", "--socket SOCKET", "Socket") { |v| socket = v }
+  opts.on("-c", "--connection CONNECTION", "Connection") { |v| connection = v }
   opts.on("-p", "--port PORT", "Port") { |v| port = v }
   opts.on("-h", "--host HOST", "Host") { |v| host = v }
   opts.on("-g", "--group GROUPNAME", "Socket owning group") { |v|
@@ -34,13 +35,15 @@ unless options[:gid]
   end
 end
 
-if host or port
-  host ||= Simultaneous::DEFAULT_HOST
-  port ||= Simultaneous::DEFAULT_PORT
-  connection = Simultaneous::Connection.tcp(host, port)
-else
-  connection = (socket ||= Simultaneous::DEFAULT_CONNECTION)
-  raise Errno::EADDRINUSE if File.exists?(socket) and File.socket?(socket)
+if connection.nil?
+  if host or port
+    host ||= Simultaneous::DEFAULT_HOST
+    port ||= Simultaneous::DEFAULT_PORT
+    connection = Simultaneous::Connection.tcp(host, port)
+  else
+    connection = (socket ||= Simultaneous::DEFAULT_CONNECTION)
+    raise Errno::EADDRINUSE if File.exists?(socket) and File.socket?(socket)
+  end
 end
 
 terminate = proc {

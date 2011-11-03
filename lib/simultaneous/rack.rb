@@ -73,7 +73,6 @@ module Simultaneous
 
       def send(message)
         @clients.each { |client| client << message }
-        puts "#{Time.now}: Message #{message.inspect}; Clients: #{@clients.length}"
       end
 
         def cleanup!(connection)
