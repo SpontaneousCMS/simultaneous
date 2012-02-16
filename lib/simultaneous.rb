@@ -4,7 +4,7 @@ require 'socket'
 require 'eventmachine'
 
 module Simultaneous
-  VERSION = "0.2.0"
+  VERSION = "0.3.0"
 
   DEFAULT_CONNECTION = "/tmp/simultaneous-server.sock"
   DEFAULT_PORT = 9999
