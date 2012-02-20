@@ -73,7 +73,7 @@ module Simultaneous
 
     def set_socket_permissions(socket)
       if File.exist?(socket)
-        File.chmod(0770, socket)
+        File.chmod(0777, socket)
         File.chown(nil, options[:gid], socket) if options[:gid]
       end
     end
