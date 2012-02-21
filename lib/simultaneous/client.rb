@@ -31,10 +31,10 @@ module Simultaneous
           client.receive(line)
         end
 
-        # def unbind
-        #   $stdout.puts "Client Connection closed\\n"
-        #   client.reconnect!
-        # end
+        def unbind
+          $stdout.puts "Client Connection closed\\\\n"
+          client.reconnect!
+        end
       end
       handler
     end
