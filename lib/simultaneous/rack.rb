@@ -58,7 +58,9 @@ module Simultaneous
 
         @lock.synchronize { @clients << stream }
 
-        [200, {"Content-type" => "text/event-stream"}, stream]
+        # Nginx specific header to disable buffering
+        # see: http://wiki.nginx.org/X-accel#X-Accel-Buffering
+        [200, {"Content-type" => "text/event-stream", "X-Accel-Buffering" => "no"}, stream]
       end
 
       def deliver_event(event)
