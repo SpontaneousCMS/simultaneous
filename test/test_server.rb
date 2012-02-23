@@ -18,9 +18,9 @@ describe Simultaneous::Server do
       EM.run {
         Simultaneous::Server.start(SOCKET)
 
-        client1 = Simultaneous::Client.new("domain1", SOCKET)
-        client2 = Simultaneous::Client.new("domain1", SOCKET)
-        client3 = Simultaneous::Client.new("domain2", SOCKET)
+        client1 = Simultaneous::AsyncClient.new("domain1", SOCKET)
+        client2 = Simultaneous::AsyncClient.new("domain1", SOCKET)
+        client3 = Simultaneous::AsyncClient.new("domain2", SOCKET)
 
         command = Simultaneous::Command::ClientEvent.new("domain1", "a", "data")
 
@@ -161,11 +161,11 @@ describe Simultaneous::Server do
         ENV[Simultaneous::ENV_TASK_NAME] = "publish"
         ENV[Simultaneous::ENV_CONNECTION] = SOCKET
 
-        c = Simultaneous::TaskClient.new("example2.com", SOCKET)
-        mock(Simultaneous::TaskClient).new { c }
+        c = Simultaneous::SyncClient.new("example2.com", SOCKET)
+        mock(Simultaneous::SyncClient).new { c }
         mock(c).run(is_a(Simultaneous::Command::SetPid))
         proxy(c).run(is_a(Simultaneous::Command::ClientEvent))
-        client = Simultaneous::Client.new("example2.com", SOCKET)
+        client = Simultaneous::AsyncClient.new("example2.com", SOCKET)
 
         client.on_event("publish_status") { |event|
           event.data.must_equal "completed"
@@ -199,8 +199,8 @@ describe Simultaneous::Server do
         ENV[Simultaneous::ENV_TASK_NAME] = "publish"
         ENV[Simultaneous::ENV_CONNECTION] = SOCKET
 
-        c = Simultaneous::TaskClient.new("example3.com", SOCKET)
-        mock(Simultaneous::TaskClient).new { c }
+        c = Simultaneous::SyncClient.new("example3.com", SOCKET)
+        mock(Simultaneous::SyncClient).new { c }
         mock(c).run(is_a(Simultaneous::Command::SetPid))
         proxy(c).run(is_a(Simultaneous::Command::Kill))
 

@@ -79,7 +79,7 @@ describe Simultaneous::Connection do
     socket = "/tmp/socket.sock"
     gid = "789"
     FileUtils.rm(socket) if File.exist?(socket)
-    mock(File).chmod(0777, socket)
+    mock(File).chmod(00777, socket)
     mock(File).chown(nil, gid, socket)
     handler = Module.new
     mock(EventMachine).start_server(socket, handler) { FileUtils.touch(socket) }

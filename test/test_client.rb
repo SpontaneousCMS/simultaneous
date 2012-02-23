@@ -1,6 +1,6 @@
 require File.expand_path('../helper', __FILE__)
 
-describe Simultaneous::Client do
+describe Simultaneous::AsyncClient do
   it "should send right command to server" do
     EM.run {
       task = Simultaneous.add_task(:publish, "/publish", {:param1 => "value1", :param2 => "value2"}, 12)

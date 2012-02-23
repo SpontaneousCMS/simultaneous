@@ -3,7 +3,7 @@
 require 'socket'
 
 module Simultaneous
-  class TaskClient
+  class SyncClient
     attr_reader :domain
 
     def initialize(domain = Simultaneous.domain, connection_string=Simultaneous.connection)

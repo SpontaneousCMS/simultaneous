@@ -77,10 +77,10 @@ module Simultaneous
       @client ||= \
         begin
           client = \
-            if ::EM.reactor_running?
-              Client.new(domain, connection)
+            if client_mode == :async and ::EM.reactor_running?
+              AsyncClient.new(domain, connection)
             else
-              TaskClient.new(domain, connection)
+              SyncClient.new(domain, connection)
             end
           # make sure that new client is hooked into all listeners
           event_listeners.each do |event, blocks|
@@ -139,12 +139,21 @@ module Simultaneous
       @domain = domain
     end
 
+    def client_mode=(mode)
+      @client_mode = mode
+    end
+
     def connection
       @connection ||= (ENV[Simultaneous::ENV_CONNECTION] || Simultaneous::DEFAULT_CONNECTION)
     end
 
     def domain
       @domain ||= (ENV[Simultaneous::ENV_DOMAIN] || "domain#{$$}")
+    end
+
+    def client_mode
+      reset_client!
+      @client_mode ||= :async
     end
 
     # Used by the {Simultaneous::Daemon} module to set the correct PID for a given task
@@ -255,8 +264,8 @@ module Simultaneous
 
   autoload :Connection,       "simultaneous/connection"
   autoload :Server,           "simultaneous/server"
-  autoload :Client,           "simultaneous/client"
-  autoload :TaskClient,       "simultaneous/task_client"
+  autoload :AsyncClient,      "simultaneous/async_client"
+  autoload :SyncClient,       "simultaneous/sync_client"
   autoload :Task,             "simultaneous/task"
   autoload :TaskDescription,  "simultaneous/task_description"
   autoload :BroadcastMessage, "simultaneous/broadcast_message"

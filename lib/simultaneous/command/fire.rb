@@ -63,6 +63,7 @@ module Simultaneous
             Process::GID.change_privilege(task_gid) unless Process.egid == task_gid
             Process::UID.change_privilege(task_uid) unless Process.euid == task_uid
             File.umask(0022)
+            redirect_io(@task.logfile)
             Dir.chdir(@task.pwd)
             exec(cmd)
           end
@@ -109,8 +110,6 @@ module Simultaneous
             end
           end
         end
-
-        redirect_io(logfile_name)
 
         return sess_id
       end
