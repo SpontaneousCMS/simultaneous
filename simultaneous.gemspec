@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
   s.name              = 'simultaneous'
-  s.version           = '0.3.3'
-  s.date              = '2012-02-21'
+  s.version           = '0.4.0'
+  s.date              = '2012-02-23'
   s.rubyforge_project = 'simultaneous'
 
   ## Make sure your summary is short. The description may be as long
@@ -63,8 +63,8 @@ Gem::Specification.new do |s|
     bin/simultaneous-console
     bin/simultaneous-server
     lib/simultaneous.rb
+    lib/simultaneous/async_client.rb
     lib/simultaneous/broadcast_message.rb
-    lib/simultaneous/client.rb
     lib/simultaneous/command.rb
     lib/simultaneous/command/client_event.rb
     lib/simultaneous/command/fire.rb
@@ -74,8 +74,8 @@ Gem::Specification.new do |s|
     lib/simultaneous/connection.rb
     lib/simultaneous/rack.rb
     lib/simultaneous/server.rb
+    lib/simultaneous/sync_client.rb
     lib/simultaneous/task.rb
-    lib/simultaneous/task_client.rb
     lib/simultaneous/task_description.rb
     simultaneous.gemspec
     test/helper.rb
