@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
   s.name              = 'simultaneous'
-  s.version           = '0.4.0'
-  s.date              = '2012-02-23'
+  s.version           = '0.4.1'
+  s.date              = '2012-06-21'
   s.rubyforge_project = 'simultaneous'
 
   ## Make sure your summary is short. The description may be as long
@@ -43,7 +43,7 @@ Gem::Specification.new do |s|
 
   ## List your runtime dependencies here. Runtime dependencies are those
   ## that are needed for an end user to actually USE your code.
-  s.add_dependency('eventmachine', [">= 1.0.0.beta.4", "< 2.0"])
+  s.add_dependency('eventmachine', [">= 1.0.0.rc.1", "< 2.0"])
   s.add_dependency('rack', [">= 1.0", "< 2.0"])
   s.add_dependency('rack-async', [">= 0.0.1", "< 2.0"])
 
