@@ -10,7 +10,7 @@ module Simultaneous
     end
 
     def self.included(klass)
-      Simultaneous.client = Simultaneous::TaskClient.new
+      Simultaneous.client = Simultaneous::SyncClient.new
       Simultaneous.set_pid(self.task_name, pid) if task_name
       at_exit {
         begin

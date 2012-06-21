@@ -23,25 +23,37 @@ module Simultaneous
         def client=(client); @client = client end
         def client; @client end
 
-        def connection_completed
-          # $stdout.puts "Client connection completed\\n"
-        end
+        def connection_completed; end
 
         def receive_line(line)
           client.receive(line)
         end
 
-        # def unbind
-        #   $stdout.puts "Client Connection closed\\\\\\\\n"
-        #   client.reconnect!
-        # end
+        def unbind
+          $stderr.puts "#{Time.now} Client Connection closed\n"
+          client.reconnect!
+        end
       end
       handler
     end
 
     def reconnect!
+      attempt_reconnect
+    end
+
+    def attempt_reconnect
       @socket = nil
-      connect
+      @reconnect_timer = EM::PeriodicTimer.new(1) do
+        $stderr.puts "#{Time.now} Attempting reconnect"
+        begin
+          connect
+          EM.cancel_timer(@reconnect_timer)
+          @reconnect_timer = nil
+          $stderr.puts "#{Time.now} Re-connection successful"
+        rescue => e
+          $stderr.puts "#{Time.now} Reconnection failed `#{e}`"
+        end
+      end
     end
 
     def close
