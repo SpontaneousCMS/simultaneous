@@ -45,7 +45,7 @@ Gem::Specification.new do |s|
   ## that are needed for an end user to actually USE your code.
   s.add_dependency('eventmachine', [">= 1.0.0.rc.1", "< 2.0"])
   s.add_dependency('rack', [">= 1.0", "< 2.0"])
-  s.add_dependency('rack-async', [">= 0.0.1", "< 2.0"])
+  s.add_dependency('async-rack', ["~> 0.5.0"])
 
   ## List your development dependencies here. Development dependencies are
   ## those that are only needed during development

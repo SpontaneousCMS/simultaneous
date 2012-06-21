@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-require 'rack/async'
+#require 'rack/async'
 
 module Simultaneous
   module Rack
@@ -49,7 +49,7 @@ module Simultaneous
       end
 
       def app
-        ::Rack::Async.new(self)
+        #::Rack::Async.new(self)
       end
 
       def call(env)
