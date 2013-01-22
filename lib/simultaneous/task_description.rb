@@ -7,6 +7,7 @@ module Simultaneous
     # options:
     #   :nice
     #   :logfile - defaults to PWD/log/task_name.log
+    #   :pwd     - the directory that the task should run in
     #
     #
     # name, path_to_binary, options, default_parameters, env
@@ -19,7 +20,7 @@ module Simultaneous
     end
 
     def logfile
-      (options[:logfile] || options[:log] || default_log_file)
+      File.expand_path(options[:logfile] || options[:log] || default_log_file, pwd)
     end
 
     def pwd
@@ -27,11 +28,12 @@ module Simultaneous
     end
 
     def default_log_file
-      File.expand_path(File.join(Dir.pwd, "log", "#{name}-task.log"))
+      File.join(pwd, "log", "#{name}-task.log")
     end
 
     def default_pwd
-      "/"
+      Dir.pwd
     end
   end
 end
+
