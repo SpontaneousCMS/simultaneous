@@ -1,2 +1,6 @@
 log/*
 Gemfile.lock
+.ruby-*
+.rake_tasks
+pkg
+
