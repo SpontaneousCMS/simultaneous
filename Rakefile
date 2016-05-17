@@ -90,7 +90,18 @@ end
 #############################################################################
 
 desc "Create tag v#{version} and build and push #{gem_file} to Rubygems"
-task :release => :build do
+task :push => :build do
+  sh "gem push pkg/#{name}-#{version}.gem"
+end
+
+desc "Create tag v#{version} and build and push #{gem_file} to Rubygems"
+task :release => :tag do
+  Rake::Task["push"].invoke
+end
+
+
+desc "Create tag v#{version}"
+task :tag => :build do
   unless `git branch` =~ /^\* master$/
     puts "You must be on the master branch to release!"
     exit!
@@ -99,7 +110,6 @@ task :release => :build do
   sh "git tag v#{version}"
   sh "git push origin master"
   sh "git push origin v#{version}"
-  sh "gem push pkg/#{name}-#{version}.gem"
 end
 
 desc "Build #{gem_file} into the pkg directory"
