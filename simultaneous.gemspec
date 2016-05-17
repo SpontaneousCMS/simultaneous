@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
   s.name              = 'simultaneous'
-  s.version           = '0.4.2'
-  s.date              = '2013-01-22'
+  s.version           = '0.5.2'
+  s.date              = '2016-05-17'
   s.rubyforge_project = 'simultaneous'
 
   ## Make sure your summary is short. The description may be as long
